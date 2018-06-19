@@ -56,14 +56,9 @@ class CalculateCentrality(object):
         return True
 
     def updateParameters(self, parameters):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parameter
-        has been changed."""
         return
 
     def updateMessages(self, parameters):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
         return
 
     def calculate_centrality(self, in_lines, cell_size, out_raster):
@@ -76,7 +71,12 @@ class CalculateCentrality(object):
         lleft = arcpy.Point(in_dist.extent.XMin, in_dist.extent.YMin)
         crs = in_dist.spatialReference
 
-        alloc = EucAllocation(in_lines, cell_size=cell_size, source_field="OBJECTID")
+        arcpy.AddMessage("Generating region centerlines...")
+
+        id_field = arcpy.ListFields(in_lines)[0].name
+        arcpy.AddMessage("Using " + id_field + " as line identifier field")
+
+        alloc = EucAllocation(in_lines, cell_size=cell_size, source_field=id_field)
 
         alloc_regions = "in_memory/alloc_regions"
         arcpy.RasterToPolygon_conversion(alloc, alloc_regions)
@@ -87,11 +87,15 @@ class CalculateCentrality(object):
         alloc_lines_lyr = "alloc_lines_lyr"
         arcpy.MakeFeatureLayer_management(alloc_lines, alloc_lines_lyr, '"LEFT_FID" <> -1')
 
+        arcpy.AddMessage('Creating blocking mask...')
+
         in_lines_r =  "in_memory/in_lines_r"
         # arcpy.AddMessage([field.name for field in arcpy.ListFields(in_lines)])
 
-        # TODO: replace FID with calculated OID value
-        arcpy.PolylineToRaster_conversion(in_lines, "OBJECTID", in_lines_r, cellsize=cell_size)
+        arcpy.PolylineToRaster_conversion(in_lines,
+                                          id_field,
+                                          in_lines_r,
+                                          cellsize=cell_size)
 
         in_lines_0 = Con(IsNull(in_lines_r), -1, in_lines_r)
 
@@ -101,6 +105,7 @@ class CalculateCentrality(object):
                           remap=RemapRange([[-1, -1, 1],
                                             [0, max, "NODATA"]]))
 
+        arcpy.AddMessage('Calculating centrality...')
         centr_dist = CostDistance(alloc_lines_lyr, cost)
 
         centr_null = in_dist / (in_dist + centr_dist)
@@ -108,9 +113,9 @@ class CalculateCentrality(object):
         output = CreateConstantRaster(0, "Float", cell_size, centr_null)
 
         # TODO: put mosaic directly into the folder
-
         arcpy.Mosaic_management(centr_null, output, "MAXIMUM")
 
+        arcpy.AddMessage('Saving result...')
         arcpy.CopyRaster_management(output, out_raster)
 
     def execute(self, parameters, messages):
@@ -123,13 +128,12 @@ class CalculateCentrality(object):
 
 class CalculateWidth(object):
     def __init__(self):
-        """Define the tool (tool name is the name of the class)."""
+
         self.label = "Local width"
         self.description = "Create raster of local region width"
         self.canRunInBackground = True
 
     def getParameterInfo(self):
-        """Define parameter definitions"""
 
         in_lines = arcpy.Parameter(
             displayName="Input lines",
@@ -165,14 +169,9 @@ class CalculateWidth(object):
         return True
 
     def updateParameters(self, parameters):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parameter
-        has been changed."""
         return
 
     def updateMessages(self, parameters):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
         return
 
     def calculate_width_circles(self, npdist, cell_size):
@@ -215,6 +214,7 @@ class CalculateWidth(object):
         cell_size = float(parameters[1].valueAsText.replace(",","."))
         out_raster = parameters[2].valueAsText
 
+        arcpy.AddMessage('Generating obstacles...')
         # generate obstacles
         frame = "in_memory/frame"
         arcpy.MinimumBoundingGeometry_management(in_lines, frame, "ENVELOPE", "ALL")
@@ -228,9 +228,11 @@ class CalculateWidth(object):
         npdist = arcpy.RasterToNumPyArray(dist)
 
         # execute width calculation
+        arcpy.AddMessage('Estimating width...')
         width = self.calculate_width_circles(npdist, cell_size)
 
         # convert to georeferenced raster
+        arcpy.AddMessage('Saving width raster...')
         lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
         out = arcpy.NumPyArrayToRaster(width, lleft, cell_size)
         arcpy.DefineProjection_management(out, dist.spatialReference)
@@ -239,14 +241,13 @@ class CalculateWidth(object):
 
 class SupplContours(object):
     def __init__(self):
-        """Define the tool (tool name is the name of the class)."""
+
         self.label = "Supplementary contours"
         self.description = "Create main and additional contours in the most suitable places of map"
         self.canRunInBackground = True
         self.params = arcpy.GetParameterInfo()
 
     def getParameterInfo(self):
-        """Define parameter definitions"""
 
         in_raster = arcpy.Parameter(
             displayName="Input raster",
@@ -318,7 +319,15 @@ class SupplContours(object):
             parameterType="Required",
             direction="Output")
 
-        parameters = [in_raster, contour_interval, base_contour, width, centrality, min_gap, min_len, min_area, out_features]
+        extend = arcpy.Parameter(
+            displayName="Extend to defined centrality",
+            name="extend",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+
+        parameters = [in_raster, contour_interval, base_contour, width,
+                      centrality, min_gap, min_len, min_area, out_features, extend]
 
         return parameters
 
@@ -331,19 +340,12 @@ class SupplContours(object):
         return True
 
     def updateParameters(self, parameters):
-        """Modify the values and properties of parameters before internal
-        validation is performed.  This method is called whenever a parameter
-        has been changed."""
-
         return
 
     def updateMessages(self, parameters):
-        """Modify the messages created by internal validation for each tool
-        parameter.  This method is called after internal validation."""
         return
 
     def execute(self, parameters, messages):
-        """The source code of the tool."""
 
         in_raster = parameters[0].valueAsText
         contour_interval = float(parameters[1].valueAsText.replace(",","."))
@@ -354,6 +356,9 @@ class SupplContours(object):
         min_len = float(parameters[6].valueAsText.replace(",","."))
         min_area = float(parameters[7].valueAsText.replace(",","."))
         out_features = parameters[8].valueAsText
+        extend = parameters[9].valueAsText
+
+        arcpy.AddMessage(extend)
 
         inRaster = arcpy.Raster(in_raster)
         lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
@@ -363,31 +368,40 @@ class SupplContours(object):
 
         arcpy.env.snapRaster = inRaster
 
-        # Построение основных горизонталей
+        arcpy.AddMessage('Generating contours and regions...')
+
         main_contours="in_memory/main_contours"
         Contour(in_raster, main_contours, contour_interval, base_contour, 1)
 
-        # Построение дополнительных горизонталей
         addbaselevel = contour_interval/2
         addcontours="in_memory/additional_contours"
         Contour(in_raster, addcontours, contour_interval,  addbaselevel, 1)
 
+        addclosed = "in_memory/addclosed"
+        arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
+
+        # generate obstacles
+        frame = "in_memory/frame"
+        arcpy.MinimumBoundingGeometry_management(main_contours, frame, "ENVELOPE", "ALL")
+
+        lines = "in_memory/lines"
+        arcpy.PolygonToLine_management(frame, lines)
+        arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
+
+        arcpy.AddMessage('Adding fields...')
+
         # Add fields
-        arcpy.AddField_management(main_contours, "Type", "TEXT")
-        arcpy.CalculateField_management(main_contours, "Type", "'Main'", "PYTHON", "")
+        arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
+        arcpy.CalculateField_management(main_contours, "Type", "'Regular'", "PYTHON", "")
 
         arcpy.AddField_management(main_contours, "SHOW", "SHORT")
         arcpy.CalculateField_management(main_contours, "SHOW", 1, "PYTHON", "")
 
-        arcpy.AddField_management(addcontours, "Type", "TEXT")
-        arcpy.CalculateField_management(addcontours, "Type", "'Add'", "PYTHON_9.3")
+        arcpy.AddField_management(addcontours, "Type", "TEXT", field_length=13)
+        arcpy.CalculateField_management(addcontours, "Type", "'Supplementary'", "PYTHON_9.3")
 
         arcpy.AddField_management(addcontours, "SHOW", "SHORT")
         arcpy.CalculateField_management(addcontours, "SHOW", 1, "PYTHON_9.3")
-
-        # Process closed contours
-        addclosed = "in_memory/addclosed"
-        arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
 
         arcpy.AddField_management(addclosed, "SHOW", "SHORT")
         arcpy.CalculateField_management(addclosed, "SHOW", 1, "PYTHON", "")
@@ -405,37 +419,36 @@ class SupplContours(object):
                         cursor.updateRow(row)
                 partnum += 1
 
+        arcpy.AddMessage('Making spatial selections...')
+
         addclosedlayer = "addclosedlayer"
         arcpy.MakeFeatureLayer_management(addclosed, addclosedlayer)
 
-        arcpy.SelectLayerByAttribute_management(addclosedlayer, "NEW_SELECTION", '"SHOW" = 1')
-        seladdclosed = "in_memory/sellines"
-        arcpy.CopyFeatures_management(addclosedlayer, seladdclosed)
+        arcpy.SelectLayerByLocation_management(addclosedlayer, 'CONTAINS', main_contours)
+        arcpy.CalculateField_management(addclosedlayer, "SHOW", 0, "PYTHON", "")
 
-        seladdclosed_layer = "selected_add_closed_layer"
-        arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
+        arcpy.SelectLayerByLocation_management(addclosedlayer, 'COMPLETELY_CONTAINS', addcontours)
+        arcpy.CalculateField_management(addclosedlayer, "SHOW", 0, "PYTHON", "")
+
+        arcpy.SelectLayerByAttribute_management(addclosedlayer, "NEW_SELECTION", '"SHOW" = 1')
+        seladdclosed = "in_memory/selclosed"
+        arcpy.CopyFeatures_management(addclosedlayer, seladdclosed)
 
         addlayer = "addlayer"
         arcpy.MakeFeatureLayer_management(addcontours, addlayer)
 
         arcpy.SelectLayerByLocation_management(addlayer,
                                                'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed_layer, "",
+                                               seladdclosed, "",
                                                "NEW_SELECTION",
                                                "INVERT")
 
-        addcontours_interp = "in_memory/addcnt"
+        # addcontours_interp = "in_memory/addcnt"
+        #
+        # arcpy.CreateFeatureclass_management("in_memory", "addcnt", geometry_type="POLYLINE")
+        # arcpy.Append_management(addlayer, addcontours_interp, schema_type='NO_TEST')
 
-        arcpy.CreateFeatureclass_management("in_memory", "addcnt", geometry_type="POLYLINE")
-        arcpy.Append_management(addlayer, addcontours_interp, schema_type='NO_TEST')
-
-        # generate obstacles
-        frame = "in_memory/frame"
-        arcpy.MinimumBoundingGeometry_management(main_contours, frame, "ENVELOPE", "ALL")
-
-        lines = "in_memory/lines"
-        arcpy.PolygonToLine_management(frame, lines)
-        arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
+        arcpy.AddMessage('Estimating region width...')
 
         # calculate distance raster
         dist = EucDistance(lines, '', cell_size)
@@ -445,16 +458,22 @@ class SupplContours(object):
         widthCalculator = CalculateWidth()
         npwidth = widthCalculator.calculate_width_circles(npdist, cell_size)
 
+        arcpy.AddMessage('Estimating centrality...')
+
         # calculate centrality
         centralityCalculator = CalculateCentrality()
         centr = "in_memory/centr"
         centralityCalculator.calculate_centrality(main_contours, cell_size, centr)
         npcentr = arcpy.RasterToNumPyArray(centr)
 
-        cursor = arcpy.da.SearchCursor(addcontours_interp, ['SHAPE@'])
+        arcpy.AddMessage('Filtering vertices...')
+
+        cursor = arcpy.da.SearchCursor(addlayer, ['SHAPE@', 'Id', 'Contour'])
 
         fc_list = [] # Feature coordinates list
-        ff_list = [] # Festure flag list
+        ff_list = [] # Feature flag list
+        fi_list = [] # Feature id list
+        fh_list = [] # Feature height list
 
         ni = npwidth.shape[0]
 
@@ -477,11 +496,17 @@ class SupplContours(object):
                             flaglist.append(0)
                     fc_list.append(coordinateslist)
                     ff_list.append(flaglist)
+                    fi_list.append(row[1])
+                    fh_list.append(row[2])
 
         feature_info = []
         feature_show = []
+        feature_id = []
+        feature_height = []
 
-        for coordinateslist, flaglist in zip(fc_list, ff_list):
+        arcpy.AddMessage('Processing gaps and short segments...')
+
+        for coordinateslist, flaglist, id, height in zip(fc_list, ff_list, fi_list, fh_list):
             # Заполняем список расстояний от предыдущей точки
             list1 = [0]
             N = len(coordinateslist)
@@ -497,7 +522,7 @@ class SupplContours(object):
                         pow(coordinateslist[i][1] - coordinateslist[i-1][1], 2)) ** 0.5
                 list1.append(dist)
 
-            # Заполняем список длин однородных участков
+            # Calculating segment lengths
             list2 = []
             n = 1
             s = 0
@@ -515,18 +540,16 @@ class SupplContours(object):
                         n = n-1
                     s = list1[i + 1] * 0.5
                     n = 1
-
-            # Обработка последней точки, если она отличается от предпоследней
             while n > 0:
                 list2.append(s)
                 n = n - 1
 
-            # Удаление дыр (замена 0 на 1)
+            # Filling gaps
             for i in idx:
                 if flaglist[i] == 0 and list2[i] <= min_gap:
                     flaglist[i] = 1
 
-            # Пересчёт list2 после удалений
+            # Recalculate list2 after filling gaps
             list2 = []
             n = 1
             s = 0
@@ -544,17 +567,17 @@ class SupplContours(object):
                         n = n - 1
                     s = list1[i + 1] * 0.5
                     n = 1
-
             while n > 0:
                 list2.append(s)
                 n = n - 1
 
-            # Удаление коротких отрезков (замена 1 на 0)
+
+            # Removing short segments (замена 1 на 0)
             for i in idx:
                 if flaglist[i] == 1 and list2[i] <= min_len:
                     flaglist[i] = 0
 
-            # Пересчёт list2 после удалений
+            # Recalculate list2 after removing short segments
             list2 = []
             n = 1
             s = 0
@@ -576,6 +599,124 @@ class SupplContours(object):
             while n > 0:
                 list2.append(s)
                 n = n - 1
+
+            # Extending lines
+
+            if(extend == 'true'):
+                arcpy.AddMessage('Extending line...')
+                arcpy.AddMessage(flaglist)
+
+                i1 = 0
+                i2 = 0
+                while i2 < N-1:
+                    if flaglist[i2] == flaglist[i2+1]:
+                        i2 += 1
+                        # arcpy.AddMessage(flaglist[i2])
+                    elif flaglist[i2] == 1:
+                        # arcpy.AddMessage('Intro...')
+
+                        d = 0
+                        i0 = i1-1
+
+                        while d <= min_gap and i0 >= 0:
+
+                            # arcpy.AddMessage('Extending backward...')
+
+                            ci = ni - int((coordinateslist[i0][1] - lowerLeft.Y)/cell_size) - 1
+                            cj = int((coordinateslist[i0][0] - lowerLeft.X)/cell_size)
+
+                            c = npcentr[ci, cj]
+
+                            if c >= centrality:
+                                while i0 < i1:
+                                    flaglist[i0] = 1
+                                    i0 += 1
+                                break
+
+                            i0 -= 1
+
+                            if i0 >= 0:
+                                d += list1[i0]
+
+                        if i0 == -1:
+                            i0 = 0
+                            while i0 < i1:
+                                flaglist[i0] = 1
+                                i0 += 1
+
+                        d = 0
+                        i3 = i2+1
+
+                        while d <= min_gap and i3 <= N-1:
+
+                            # arcpy.AddMessage('Extending forward...')
+
+                            ci = ni - int((coordinateslist[i3][1] - lowerLeft.Y)/cell_size) - 1
+                            cj = int((coordinateslist[i3][0] - lowerLeft.X)/cell_size)
+
+                            c = npcentr[ci, cj]
+
+                            if c >= centrality:
+                                ii = i3
+                                while ii > i2:
+                                    flaglist[ii] = 1
+                                    ii -= 1
+                                i2 = i3
+                                break
+
+                            i3 += 1
+
+                            if i3 <= N-1:
+                                d += list1[i3]
+
+                        if i3 == N:
+                            ii = N-1
+                            while ii > i2:
+                                flaglist[ii] = 1
+                                ii -= 1
+                            i2 = i3
+
+                        i2 += 1
+                        i1 = i2
+
+                    else:
+                        i2 += 1
+                        i1 = i2
+
+                # Recalculate list2 after extending lines
+                list2 = []
+                n = 1
+                s = 0
+
+                arcpy.AddMessage('Recalculate length...')
+
+                for i in idx:
+
+                    if flaglist[i] == flaglist[i + 1]:
+                        n = n + 1
+                        s = s + list1[i + 1]
+
+                    else:
+                        s = s + list1[i + 1] * 0.5
+                        while n > 0:
+                            list2.append(s)
+                            n = n - 1
+                        s = list1[i + 1] * 0.5
+                        n = 1
+
+                while n > 0:
+                    list2.append(s)
+                    n = n - 1
+
+                arcpy.AddMessage('Fill gaps...')
+
+                # Filling gaps between extended lines
+                for i in idx:
+                    if flaglist[i] == 0 and list2[i] <= min_gap:
+                        flaglist[i] = 1
+
+
+            # Here there is no need to recalculate the length of the segments
 
             feature = []
 
@@ -587,29 +728,51 @@ class SupplContours(object):
                 if f != flag or i == N-1:
                     feature_info.append(arcpy.Polyline(arcpy.Array(feature)))
                     feature_show.append(flag)
+                    feature_id.append(id)
+                    feature_height.append(height)
                     feature = [p]
                     flag = f
 
-        cursor = arcpy.da.InsertCursor(main_contours, ["SHAPE@", "Type", "SHOW"])
+        arcpy.AddMessage('Combining results...')
 
-        for feature, show in zip(feature_info, feature_show):
-            cursor.insertRow([feature, "Add", show])
+        cursor = arcpy.da.InsertCursor(main_contours, ["SHAPE@", "Type", "SHOW", "Id", "Contour"])
 
-        # Выделение всех замкнутых дополнительных горизонталей
+        for feature, show, id, height in zip(feature_info, feature_show, feature_id, feature_height):
+            cursor.insertRow([feature, "Supplementary", show, id, height])
 
-        arcpy.AddGeometryAttributes_management(seladdclosed_layer, "AREA")
+        # filter small closed contours by area
 
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" >= ' + str(min_area))
+        arcpy.AddGeometryAttributes_management(seladdclosed, "AREA")
+        seladdclosed_layer = "selected_add_closed_layer"
+        arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
-        seladdclosed_layer_copy = "in_memory/seladdclosed_layer_copy"
-        arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_layer_copy)
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" < ' + str(min_area))
+
+
+        seladdclosed_small = "in_memory/seladdclosed_small"
+        arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
 
         arcpy.SelectLayerByLocation_management(addlayer,
                                                'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed_layer_copy, "",
+                                               seladdclosed_small, "",
                                                "NEW_SELECTION")
+
+        arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
+
+        arcpy.SelectLayerByLocation_management(addlayer,
+                                               'SHARE_A_LINE_SEGMENT_WITH',
+                                               seladdclosed, "",
+                                               "NEW_SELECTION")
+
+        arcpy.AddMessage('Saving output...')
 
         # Объединение всех видов горизонталей
         arcpy.Merge_management([main_contours, addlayer], out_features)
+
+        arcpy.AddField_management(out_features, "Index", "SHORT")
+
+        arcpy.CalculateField_management(out_features, "Index",
+                                        "(!Contour! - " + str(base_contour) + ") % " + str(5 * contour_interval) + " == 0",
+                                        "PYTHON", "")
 
         return
