@@ -271,6 +271,14 @@ class SupplContours(object):
             direction="Input")
         base_contour.value = 0.0
 
+        min_area = arcpy.Parameter(
+            displayName="Closed contour area (minimum)",
+            name="min_area",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        min_area.value = 0.0
+
         width=arcpy.Parameter(
             displayName="Region width (minimum)",
             name="width",
@@ -279,13 +287,29 @@ class SupplContours(object):
             direction="Input")
         width.value = 0.0
 
+        width_cent = arcpy.Parameter(
+            displayName="Region width (centrality)",
+            name="width_cent",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        width_cent.value = 0.0
+
         centrality=arcpy.Parameter(
             displayName="Centrality (maximum)",
             name="centrality",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        centrality.value = 1.0
+        centrality.value = 0.7
+
+        centrality_ext = arcpy.Parameter(
+            displayName="Centrality (extension)",
+            name="centrality_ext",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        centrality_ext.value = 0.8
 
         min_gap=arcpy.Parameter(
             displayName="Gap length (minimum)",
@@ -303,13 +327,13 @@ class SupplContours(object):
             direction="Input")
         min_len.value = 0.0
 
-        min_area = arcpy.Parameter(
-            displayName="Closed contour area (minimum)",
-            name="min_area",
+        ext_len = arcpy.Parameter(
+            displayName="Extension length (minimum)",
+            name="ext_len",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_area.value = 0.0
+        ext_len.value = 0.0
 
         # Выходной параметр — дополнительные горизонтали
         out_features = arcpy.Parameter(
@@ -326,8 +350,8 @@ class SupplContours(object):
             parameterType="Optional",
             direction="Input")
 
-        parameters = [in_raster, contour_interval, base_contour, width,
-                      centrality, min_gap, min_len, min_area, out_features, extend]
+        parameters = [in_raster, contour_interval, base_contour, min_area, width, width_cent,
+                      centrality, centrality_ext, min_gap, min_len, ext_len, out_features, extend]
 
         return parameters
 
@@ -348,15 +372,23 @@ class SupplContours(object):
     def execute(self, parameters, messages):
 
         in_raster = parameters[0].valueAsText
+
         contour_interval = float(parameters[1].valueAsText.replace(",","."))
         base_contour = float(parameters[2].valueAsText.replace(",","."))
-        width = float(parameters[3].valueAsText.replace(",","."))
-        centrality = float(parameters[4].valueAsText.replace(",","."))
-        min_gap = float(parameters[5].valueAsText.replace(",","."))
-        min_len = float(parameters[6].valueAsText.replace(",","."))
-        min_area = float(parameters[7].valueAsText.replace(",","."))
-        out_features = parameters[8].valueAsText
-        extend = parameters[9].valueAsText
+        min_area = float(parameters[3].valueAsText.replace(",", "."))
+
+        width = float(parameters[4].valueAsText.replace(",","."))
+        width_cent = float(parameters[5].valueAsText.replace(",","."))
+
+        centrality = float(parameters[6].valueAsText.replace(",","."))
+        centrality_ext = float(parameters[7].valueAsText.replace(",","."))
+
+        min_gap = float(parameters[8].valueAsText.replace(",","."))
+        min_len = float(parameters[9].valueAsText.replace(",","."))
+        ext_len = float(parameters[10].valueAsText.replace(",","."))
+
+        out_features = parameters[11].valueAsText
+        extend = parameters[12].valueAsText
 
         arcpy.AddMessage(extend)
 
@@ -443,11 +475,6 @@ class SupplContours(object):
                                                "NEW_SELECTION",
                                                "INVERT")
 
-        # addcontours_interp = "in_memory/addcnt"
-        #
-        # arcpy.CreateFeatureclass_management("in_memory", "addcnt", geometry_type="POLYLINE")
-        # arcpy.Append_management(addlayer, addcontours_interp, schema_type='NO_TEST')
-
         arcpy.AddMessage('Estimating region width...')
 
         # calculate distance raster
@@ -490,7 +517,7 @@ class SupplContours(object):
                         i = ni - int((pnt.Y - lowerLeft.Y)/cell_size) - 1
                         j = int((pnt.X - lowerLeft.X)/cell_size)
 
-                        if npwidth[i, j] >= width and npcentr[i, j] <= centrality:
+                        if (npwidth[i, j] >= width and npcentr[i, j] <= centrality) or npwidth[i, j] >= width_cent:
                             flaglist.append(1)
                         else:
                             flaglist.append(0)
@@ -603,31 +630,25 @@ class SupplContours(object):
             # Extending lines
 
             if(extend == 'true'):
-                arcpy.AddMessage('Extending line...')
-                arcpy.AddMessage(flaglist)
 
                 i1 = 0
                 i2 = 0
                 while i2 < N-1:
                     if flaglist[i2] == flaglist[i2+1]:
                         i2 += 1
-                        # arcpy.AddMessage(flaglist[i2])
                     elif flaglist[i2] == 1:
-                        # arcpy.AddMessage('Intro...')
 
                         d = 0
                         i0 = i1-1
 
-                        while d <= min_gap and i0 >= 0:
-
-                            # arcpy.AddMessage('Extending backward...')
+                        while d <= ext_len and i0 >= 0:
 
                             ci = ni - int((coordinateslist[i0][1] - lowerLeft.Y)/cell_size) - 1
                             cj = int((coordinateslist[i0][0] - lowerLeft.X)/cell_size)
 
                             c = npcentr[ci, cj]
 
-                            if c >= centrality:
+                            if c >= centrality_ext:
                                 while i0 < i1:
                                     flaglist[i0] = 1
                                     i0 += 1
@@ -647,7 +668,7 @@ class SupplContours(object):
                         d = 0
                         i3 = i2+1
 
-                        while d <= min_gap and i3 <= N-1:
+                        while d <= ext_len and i3 <= N-1:
 
                             # arcpy.AddMessage('Extending forward...')
 
@@ -656,7 +677,7 @@ class SupplContours(object):
 
                             c = npcentr[ci, cj]
 
-                            if c >= centrality:
+                            if c >= centrality_ext:
                                 ii = i3
                                 while ii > i2:
                                     flaglist[ii] = 1
@@ -688,8 +709,6 @@ class SupplContours(object):
                 n = 1
                 s = 0
 
-                arcpy.AddMessage('Recalculate length...')
-
                 for i in idx:
 
                     if flaglist[i] == flaglist[i + 1]:
@@ -707,8 +726,6 @@ class SupplContours(object):
                 while n > 0:
                     list2.append(s)
                     n = n - 1
-
-                arcpy.AddMessage('Fill gaps...')
 
                 # Filling gaps between extended lines
                 for i in idx:
@@ -746,7 +763,7 @@ class SupplContours(object):
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" < ' + str(min_area))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" <= ' + str(min_area))
 
 
         seladdclosed_small = "in_memory/seladdclosed_small"
