@@ -390,8 +390,6 @@ class SupplContours(object):
         out_features = parameters[11].valueAsText
         extend = parameters[12].valueAsText
 
-        arcpy.AddMessage(extend)
-
         inRaster = arcpy.Raster(in_raster)
         lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
         cell_size = inRaster.meanCellWidth
@@ -400,7 +398,7 @@ class SupplContours(object):
 
         arcpy.env.snapRaster = inRaster
 
-        arcpy.AddMessage('Generating contours and regions...')
+        arcpy.AddMessage('Preparing contours...')
 
         main_contours="in_memory/main_contours"
         Contour(in_raster, main_contours, contour_interval, base_contour, 1)
@@ -419,8 +417,6 @@ class SupplContours(object):
         lines = "in_memory/lines"
         arcpy.PolygonToLine_management(frame, lines)
         arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
-
-        arcpy.AddMessage('Adding fields...')
 
         # Add fields
         arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
@@ -450,8 +446,6 @@ class SupplContours(object):
                         row[2] = 0
                         cursor.updateRow(row)
                 partnum += 1
-
-        arcpy.AddMessage('Making spatial selections...')
 
         addclosedlayer = "addclosedlayer"
         arcpy.MakeFeatureLayer_management(addclosed, addclosedlayer)
@@ -493,7 +487,7 @@ class SupplContours(object):
         centralityCalculator.calculate_centrality(main_contours, cell_size, centr)
         npcentr = arcpy.RasterToNumPyArray(centr)
 
-        arcpy.AddMessage('Filtering vertices...')
+        arcpy.AddMessage('Filtering by width and centrality...')
 
         cursor = arcpy.da.SearchCursor(addlayer, ['SHAPE@', 'Id', 'Contour'])
 
@@ -531,7 +525,7 @@ class SupplContours(object):
         feature_id = []
         feature_height = []
 
-        arcpy.AddMessage('Processing gaps and short segments...')
+        arcpy.AddMessage('Filtering gaps and segments...')
 
         for coordinateslist, flaglist, id, height in zip(fc_list, ff_list, fi_list, fh_list):
             # Заполняем список расстояний от предыдущей точки
