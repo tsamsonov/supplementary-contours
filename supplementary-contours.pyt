@@ -71,10 +71,9 @@ class CalculateCentrality(object):
         lleft = arcpy.Point(in_dist.extent.XMin, in_dist.extent.YMin)
         crs = in_dist.spatialReference
 
-        arcpy.AddMessage("Generating region centerlines...")
 
         id_field = arcpy.ListFields(in_lines)[0].name
-        arcpy.AddMessage("Using " + id_field + " as line identifier field")
+        # TODO: check whether using the first field is reliable
 
         alloc = EucAllocation(in_lines, cell_size=cell_size, source_field=id_field)
 
@@ -87,10 +86,7 @@ class CalculateCentrality(object):
         alloc_lines_lyr = "alloc_lines_lyr"
         arcpy.MakeFeatureLayer_management(alloc_lines, alloc_lines_lyr, '"LEFT_FID" <> -1')
 
-        arcpy.AddMessage('Creating blocking mask...')
-
         in_lines_r =  "in_memory/in_lines_r"
-        # arcpy.AddMessage([field.name for field in arcpy.ListFields(in_lines)])
 
         arcpy.PolylineToRaster_conversion(in_lines,
                                           id_field,
@@ -105,7 +101,6 @@ class CalculateCentrality(object):
                           remap=RemapRange([[-1, -1, 1],
                                             [0, max, "NODATA"]]))
 
-        arcpy.AddMessage('Calculating centrality...')
         centr_dist = CostDistance(alloc_lines_lyr, cost)
 
         centr_null = in_dist / (in_dist + centr_dist)
@@ -115,7 +110,6 @@ class CalculateCentrality(object):
         # TODO: put mosaic directly into the folder
         arcpy.Mosaic_management(centr_null, output, "MAXIMUM")
 
-        arcpy.AddMessage('Saving result...')
         arcpy.CopyRaster_management(output, out_raster)
 
     def execute(self, parameters, messages):
@@ -279,29 +273,45 @@ class SupplContours(object):
             direction="Input")
         min_area.value = 0.0
 
-        width=arcpy.Parameter(
+        width_min = arcpy.Parameter(
             displayName="Region width (minimum)",
+            name="width_min",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        width_min.value = 0.25
+
+        width=arcpy.Parameter(
+            displayName="Region width (optimal)",
             name="width",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        width.value = 0.0
+        width.value = 0.5
 
-        width_cent = arcpy.Parameter(
-            displayName="Region width (centrality)",
-            name="width_cent",
+        width_max = arcpy.Parameter(
+            displayName="Region width (maximum)",
+            name="width_max",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        width_cent.value = 0.0
+        width_max.value = 0.75
+
+        centrality_min = arcpy.Parameter(
+            displayName="Centrality (minimal)",
+            name="centrality_min",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        centrality_min.value = 0.4
 
         centrality=arcpy.Parameter(
-            displayName="Centrality (maximum)",
+            displayName="Centrality (optimal)",
             name="centrality",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        centrality.value = 0.7
+        centrality.value = 0.8
 
         centrality_ext = arcpy.Parameter(
             displayName="Centrality (extension)",
@@ -350,8 +360,8 @@ class SupplContours(object):
             parameterType="Optional",
             direction="Input")
 
-        parameters = [in_raster, contour_interval, base_contour, min_area, width, width_cent,
-                      centrality, centrality_ext, min_gap, min_len, ext_len, out_features, extend]
+        parameters = [in_raster, contour_interval, base_contour, min_area, width_min, width, width_max,
+                      centrality_min, centrality, centrality_ext, min_gap, min_len, ext_len, out_features, extend]
 
         return parameters
 
@@ -377,24 +387,26 @@ class SupplContours(object):
         base_contour = float(parameters[2].valueAsText.replace(",","."))
         min_area = float(parameters[3].valueAsText.replace(",", "."))
 
-        width = float(parameters[4].valueAsText.replace(",","."))
-        width_cent = float(parameters[5].valueAsText.replace(",","."))
+        rwidth_min = float(parameters[4].valueAsText.replace(",", "."))
+        rwidth = float(parameters[5].valueAsText.replace(",","."))
+        rwidth_max = float(parameters[6].valueAsText.replace(",","."))
 
-        centrality = float(parameters[6].valueAsText.replace(",","."))
-        centrality_ext = float(parameters[7].valueAsText.replace(",","."))
+        centrality_min = float(parameters[7].valueAsText.replace(",","."))
+        centrality = float(parameters[8].valueAsText.replace(",","."))
+        centrality_ext = float(parameters[9].valueAsText.replace(",","."))
 
-        min_gap = float(parameters[8].valueAsText.replace(",","."))
-        min_len = float(parameters[9].valueAsText.replace(",","."))
-        ext_len = float(parameters[10].valueAsText.replace(",","."))
+        min_gap = float(parameters[10].valueAsText.replace(",","."))
+        min_len = float(parameters[11].valueAsText.replace(",","."))
+        ext_len = float(parameters[12].valueAsText.replace(",","."))
 
-        out_features = parameters[11].valueAsText
-        extend = parameters[12].valueAsText
+        out_features = parameters[13].valueAsText
+        extend = parameters[14].valueAsText
 
         inRaster = arcpy.Raster(in_raster)
         lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
         cell_size = inRaster.meanCellWidth
 
-        crs = inRaster.spatialReference
+        crs = inRaster.spatialReference # TODO: remove?
 
         arcpy.env.snapRaster = inRaster
 
@@ -479,6 +491,18 @@ class SupplContours(object):
         widthCalculator = CalculateWidth()
         npwidth = widthCalculator.calculate_width_circles(npdist, cell_size)
 
+        maxwidth = numpy.amax(npwidth)
+
+        width = rwidth * maxwidth
+        width_min = rwidth_min * maxwidth
+        width_max = rwidth_max * maxwidth
+
+        k1 = (centrality - centrality_min) / (width - width_min)
+        b1 = centrality_min - width_min * k1
+
+        k2 = (1 - centrality) / (width_max - width)
+        b2 = centrality - width * k2
+
         arcpy.AddMessage('Estimating centrality...')
 
         # calculate centrality
@@ -511,10 +535,22 @@ class SupplContours(object):
                         i = ni - int((pnt.Y - lowerLeft.Y)/cell_size) - 1
                         j = int((pnt.X - lowerLeft.X)/cell_size)
 
-                        if (npwidth[i, j] >= width and npcentr[i, j] <= centrality) or npwidth[i, j] >= width_cent:
-                            flaglist.append(1)
+                        w = npwidth[i, j]
+                        c = npcentr[i, j]
+
+                        flag = 0
+
+                        if w < width_min:
+                            flag = 0
+                        elif w < width:
+                            flag = int(c <= w * k1 + b1)
+                        elif w < width_max:
+                            flag = int(c <= w * k2 + b2)
                         else:
-                            flaglist.append(0)
+                            flag = 1
+
+                        flaglist.append(flag)
+
                     fc_list.append(coordinateslist)
                     ff_list.append(flaglist)
                     fi_list.append(row[1])
@@ -783,7 +819,7 @@ class SupplContours(object):
         arcpy.AddField_management(out_features, "Index", "SHORT")
 
         arcpy.CalculateField_management(out_features, "Index",
-                                        "(!Contour! - " + str(base_contour) + ") % " + str(5 * contour_interval) + " == 0",
+                                        "abs(!Contour! - " + str(base_contour) + ") % " + str(5 * contour_interval) + " < " + str(0.25 * contour_interval),
                                         "PYTHON", "")
 
         return
