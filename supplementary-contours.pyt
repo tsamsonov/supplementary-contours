@@ -250,6 +250,13 @@ class SupplContours(object):
             parameterType="Required",
             direction="Input")
 
+        cell_size = arcpy.Parameter(
+            displayName="Cell size",
+            name="cell_size",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+
         contour_interval=arcpy.Parameter(
             displayName="Contour interval",
             name="contour_interval",
@@ -271,7 +278,7 @@ class SupplContours(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_area.value = 0.0
+        min_area.value = 0.1
 
         width_min = arcpy.Parameter(
             displayName="Region width (minimum)",
@@ -319,31 +326,31 @@ class SupplContours(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        centrality_ext.value = 0.8
+        centrality_ext.value = 0.9
 
         min_gap=arcpy.Parameter(
-            displayName="Gap length (minimum)",
+            displayName="Gap length",
             name="min_gap",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_gap.value = 0.0
+        min_gap.value = 0.5
 
         min_len=arcpy.Parameter(
-            displayName="Segment length (minimum)",
+            displayName="Segment length",
             name="min_len",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_len.value = 0.0
+        min_len.value = 1.0
 
         ext_len = arcpy.Parameter(
-            displayName="Extension length (minimum)",
+            displayName="Extension length",
             name="ext_len",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        ext_len.value = 0.0
+        ext_len.value = 0.5
 
         # Выходной параметр — дополнительные горизонтали
         out_features = arcpy.Parameter(
@@ -359,8 +366,9 @@ class SupplContours(object):
             datatype="GPBoolean",
             parameterType="Optional",
             direction="Input")
+        extend.value = 'true'
 
-        parameters = [in_raster, contour_interval, base_contour, min_area, width_min, width, width_max,
+        parameters = [in_raster, cell_size, contour_interval, base_contour, min_area, width_min, width, width_max,
                       centrality_min, centrality, centrality_ext, min_gap, min_len, ext_len, out_features, extend]
 
         return parameters
@@ -383,28 +391,30 @@ class SupplContours(object):
 
         in_raster = parameters[0].valueAsText
 
-        contour_interval = float(parameters[1].valueAsText.replace(",","."))
-        base_contour = float(parameters[2].valueAsText.replace(",","."))
-        min_area = float(parameters[3].valueAsText.replace(",", "."))
+        cell_size = float(parameters[1].valueAsText.replace(",","."))
 
-        rwidth_min = float(parameters[4].valueAsText.replace(",", "."))
-        rwidth = float(parameters[5].valueAsText.replace(",","."))
-        rwidth_max = float(parameters[6].valueAsText.replace(",","."))
+        contour_interval = float(parameters[2].valueAsText.replace(",","."))
+        base_contour = float(parameters[3].valueAsText.replace(",","."))
+        rmin_area = float(parameters[4].valueAsText.replace(",", "."))
 
-        centrality_min = float(parameters[7].valueAsText.replace(",","."))
-        centrality = float(parameters[8].valueAsText.replace(",","."))
-        centrality_ext = float(parameters[9].valueAsText.replace(",","."))
+        rwidth_min = float(parameters[5].valueAsText.replace(",", "."))
+        rwidth = float(parameters[6].valueAsText.replace(",","."))
+        rwidth_max = float(parameters[7].valueAsText.replace(",","."))
 
-        min_gap = float(parameters[10].valueAsText.replace(",","."))
-        min_len = float(parameters[11].valueAsText.replace(",","."))
-        ext_len = float(parameters[12].valueAsText.replace(",","."))
+        centrality_min = float(parameters[8].valueAsText.replace(",","."))
+        centrality = float(parameters[9].valueAsText.replace(",","."))
+        centrality_ext = float(parameters[10].valueAsText.replace(",","."))
 
-        out_features = parameters[13].valueAsText
-        extend = parameters[14].valueAsText
+        rmin_gap = float(parameters[11].valueAsText.replace(",","."))
+        rmin_len = float(parameters[12].valueAsText.replace(",","."))
+        rext_len = float(parameters[13].valueAsText.replace(",","."))
+
+        out_features = parameters[14].valueAsText
+        extend = parameters[15].valueAsText
 
         inRaster = arcpy.Raster(in_raster)
         lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
-        cell_size = inRaster.meanCellWidth
+        # cell_size = inRaster.meanCellWidth
 
         crs = inRaster.spatialReference # TODO: remove?
 
@@ -496,6 +506,12 @@ class SupplContours(object):
         width = rwidth * maxwidth
         width_min = rwidth_min * maxwidth
         width_max = rwidth_max * maxwidth
+
+        min_area = rmin_area * (width ** 2)
+
+        min_gap = rmin_gap * width
+        min_len = rmin_len * width
+        ext_len = rext_len * width
 
         k1 = (centrality - centrality_min) / (width - width_min)
         b1 = centrality_min - width_min * k1
