@@ -368,8 +368,8 @@ class SupplContours(object):
             direction="Input")
         extend.value = 'true'
 
-        parameters = [in_raster, cell_size, contour_interval, base_contour, min_area, width_min, width, width_max,
-                      centrality_min, centrality, centrality_ext, min_gap, min_len, ext_len, out_features, extend]
+        parameters = [in_raster, out_features, cell_size, contour_interval, base_contour, min_area, width_min, width, width_max,
+                      centrality_min, centrality, centrality_ext, min_gap, min_len, ext_len, extend]
 
         return parameters
 
@@ -390,26 +390,25 @@ class SupplContours(object):
     def execute(self, parameters, messages):
 
         in_raster = parameters[0].valueAsText
+        out_features = parameters[1].valueAsText
 
-        cell_size = float(parameters[1].valueAsText.replace(",","."))
+        cell_size = float(parameters[2].valueAsText.replace(",","."))
+        contour_interval = float(parameters[3].valueAsText.replace(",","."))
+        base_contour = float(parameters[4].valueAsText.replace(",","."))
 
-        contour_interval = float(parameters[2].valueAsText.replace(",","."))
-        base_contour = float(parameters[3].valueAsText.replace(",","."))
-        rmin_area = float(parameters[4].valueAsText.replace(",", "."))
+        rmin_area = float(parameters[5].valueAsText.replace(",", "."))
 
-        rwidth_min = float(parameters[5].valueAsText.replace(",", "."))
-        rwidth = float(parameters[6].valueAsText.replace(",","."))
-        rwidth_max = float(parameters[7].valueAsText.replace(",","."))
+        rwidth_min = float(parameters[6].valueAsText.replace(",", "."))
+        rwidth = float(parameters[7].valueAsText.replace(",","."))
+        rwidth_max = float(parameters[8].valueAsText.replace(",","."))
 
-        centrality_min = float(parameters[8].valueAsText.replace(",","."))
-        centrality = float(parameters[9].valueAsText.replace(",","."))
-        centrality_ext = float(parameters[10].valueAsText.replace(",","."))
+        centrality_min = float(parameters[9].valueAsText.replace(",","."))
+        centrality = float(parameters[10].valueAsText.replace(",","."))
+        centrality_ext = float(parameters[11].valueAsText.replace(",","."))
 
-        rmin_gap = float(parameters[11].valueAsText.replace(",","."))
-        rmin_len = float(parameters[12].valueAsText.replace(",","."))
-        rext_len = float(parameters[13].valueAsText.replace(",","."))
-
-        out_features = parameters[14].valueAsText
+        rmin_gap = float(parameters[12].valueAsText.replace(",","."))
+        rmin_len = float(parameters[13].valueAsText.replace(",","."))
+        rext_len = float(parameters[14].valueAsText.replace(",","."))
         extend = parameters[15].valueAsText
 
         inRaster = arcpy.Raster(in_raster)
