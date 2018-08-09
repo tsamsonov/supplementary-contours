@@ -417,8 +417,6 @@ class SupplContours(object):
 
         crs = inRaster.spatialReference # TODO: remove?
 
-        arcpy.env.snapRaster = inRaster
-
         arcpy.AddMessage('Preparing contours...')
 
         main_contours="in_memory/main_contours"
@@ -492,6 +490,8 @@ class SupplContours(object):
 
         arcpy.AddMessage('Estimating region width...')
 
+        arcpy.env.snapRaster = inRaster
+
         # calculate distance raster
         dist = EucDistance(lines, '', cell_size)
         npdist = arcpy.RasterToNumPyArray(dist)
@@ -523,6 +523,10 @@ class SupplContours(object):
         # calculate centrality
         centralityCalculator = CalculateCentrality()
         centr = "in_memory/centr"
+
+        arcpy.env.snapRaster = dist
+        arcpy.env.extent = dist.extent
+
         centralityCalculator.calculate_centrality(main_contours, cell_size, centr)
         npcentr = arcpy.RasterToNumPyArray(centr)
 
