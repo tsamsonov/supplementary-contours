@@ -621,9 +621,10 @@ class SupplContours(object):
                 n = n - 1
 
             # Filling gaps
-            for i in idx:
-                if flaglist[i] == 0 and list2[i] <= min_gap:
-                    flaglist[i] = 1
+            if numpy.sum(flaglist) > 0:  # if this is not a single gap-line
+                for i in idx:
+                    if flaglist[i] == 0 and list2[i] <= min_gap:
+                        flaglist[i] = 1
 
             # Recalculate list2 after filling gaps
             list2 = []
@@ -690,60 +691,63 @@ class SupplContours(object):
                         d = 0
                         i0 = i1-1
 
-                        while d <= ext_len and i0 >= 0:
+                        imax = i0
+                        cmax = 0
 
-                            ci = ni - int((coordinateslist[i0][1] - lowerLeft.Y)/cell_size) - 1
-                            cj = int((coordinateslist[i0][0] - lowerLeft.X)/cell_size)
+                        while d <= ext_len:
+
+                            ci = ni - int((coordinateslist[i0][1] - lowerLeft.Y) / cell_size) - 1
+                            cj = int((coordinateslist[i0][0] - lowerLeft.X) / cell_size)
 
                             c = npcentr[ci, cj]
+                            w = npwidth[ci, cj]
 
-                            if c >= centrality_ext:
-                                while i0 < i1:
-                                    flaglist[i0] = 1
-                                    i0 += 1
+                            if w <= width_min or i0 == 0:
+                                cmax = 1
+                                imax = i0
                                 break
-
-                            i0 -= 1
-
-                            if i0 >= 0:
+                            else:
+                                # find the highest centrality in length
+                                if c >= centrality_ext and c > cmax:
+                                    imax = i0
+                                    cmax = c
+                                i0 -= 1
                                 d += list1[i0]
 
-                        if i0 == -1:
-                            i0 = 0
-                            while i0 < i1:
-                                flaglist[i0] = 1
-                                i0 += 1
+                        if cmax > 0:
+                            while imax < i1:
+                                flaglist[imax] = 1
+                                imax += 1
 
                         d = 0
                         i3 = i2+1
 
-                        while d <= ext_len and i3 <= N-1:
+                        imax = i0
+                        cmax = 0
 
-                            # arcpy.AddMessage('Extending forward...')
-
+                        while d <= ext_len:
                             ci = ni - int((coordinateslist[i3][1] - lowerLeft.Y)/cell_size) - 1
                             cj = int((coordinateslist[i3][0] - lowerLeft.X)/cell_size)
 
                             c = npcentr[ci, cj]
+                            w = npwidth[ci, cj]
 
-                            if c >= centrality_ext:
-                                ii = i3
-                                while ii > i2:
-                                    flaglist[ii] = 1
-                                    ii -= 1
-                                i2 = i3
+                            if w <= width_min or i3 == N-1:
+                                cmax = 1
+                                imax = i3
                                 break
-
-                            i3 += 1
-
-                            if i3 <= N-1:
+                            else:
+                                # find the highest centrality in length
+                                if c >= centrality_ext and c > cmax:
+                                    imax = i3
+                                    cmax = c
+                                i3 += 1
                                 d += list1[i3]
 
-                        if i3 == N:
-                            ii = N-1
-                            while ii > i2:
-                                flaglist[ii] = 1
-                                ii -= 1
+                        if cmax > 0:
+                            while imax > i2:
+                                flaglist[imax] = 1
+                                imax -= 1
                             i2 = i3
 
                         i2 += 1
@@ -777,9 +781,10 @@ class SupplContours(object):
                     n = n - 1
 
                 # Filling gaps between extended lines
-                for i in idx:
-                    if flaglist[i] == 0 and list2[i] <= min_gap:
-                        flaglist[i] = 1
+                if numpy.sum(flaglist) > 0: # if this is not a single gap-line
+                    for i in idx:
+                        if flaglist[i] == 0 and list2[i] <= min_gap:
+                            flaglist[i] = 1
 
 
             # Here there is no need to recalculate the length of the segments
