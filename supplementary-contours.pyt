@@ -604,11 +604,9 @@ class SupplContours(object):
             s = 0
 
             for i in idx:
-
-                if flaglist[i] == flaglist[i+1]:
+                if flaglist[i] == flaglist[i + 1]:
                     n = n + 1
                     s = s + list1[i + 1]
-
                 else:
                     s = s + list1[i + 1] * 0.5
                     while n > 0:
@@ -621,8 +619,8 @@ class SupplContours(object):
                 n = n - 1
 
             # Filling gaps
-            if numpy.sum(flaglist) > 0:  # if this is not a single gap-line
-                for i in idx:
+            if numpy.sum(flaglist) > 0.5:  # if this is not a single gap-line
+                for i in idx0:
                     if flaglist[i] == 0 and list2[i] <= min_gap:
                         flaglist[i] = 1
 
@@ -632,11 +630,9 @@ class SupplContours(object):
             s = 0
 
             for i in idx:
-
                 if flaglist[i] == flaglist[i + 1]:
                     n = n + 1
                     s = s + list1[i + 1]
-
                 else:
                     s = s + list1[i + 1] * 0.5
                     while n > 0:
@@ -650,7 +646,7 @@ class SupplContours(object):
 
 
             # Removing short segments (замена 1 на 0)
-            for i in idx:
+            for i in idx0:
                 if flaglist[i] == 1 and list2[i] <= min_len:
                     flaglist[i] = 0
 
@@ -660,11 +656,9 @@ class SupplContours(object):
             s = 0
 
             for i in idx:
-
                 if flaglist[i] == flaglist[i + 1]:
                     n = n + 1
                     s = s + list1[i + 1]
-
                 else:
                     s = s + list1[i + 1] * 0.5
                     while n > 0:
@@ -672,14 +666,13 @@ class SupplContours(object):
                         n = n - 1
                     s = list1[i + 1] * 0.5
                     n = 1
-
             while n > 0:
                 list2.append(s)
                 n = n - 1
 
             # Extending lines
 
-            if(extend == 'true'):
+            if extend == 'true' and numpy.sum(flaglist) > 0.5:
 
                 i1 = 0
                 i2 = 0
@@ -781,10 +774,9 @@ class SupplContours(object):
                     n = n - 1
 
                 # Filling gaps between extended lines
-                if numpy.sum(flaglist) > 0: # if this is not a single gap-line
-                    for i in idx:
-                        if flaglist[i] == 0 and list2[i] <= min_gap:
-                            flaglist[i] = 1
+                for i in idx0:
+                    if flaglist[i] == 0 and list2[i] <= min_gap:
+                        flaglist[i] = 1
 
 
             # Here there is no need to recalculate the length of the segments
