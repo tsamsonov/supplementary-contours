@@ -43,7 +43,14 @@ class CalculateCentrality(object):
             parameterType="Required",
             direction="Output")
 
-        parameters = [in_lines, cell_size, out_raster]
+        snap_raster = arcpy.Parameter(
+            displayName="Snap raster",
+            name="snap_raster",
+            datatype=["GPRasterLayer"],
+            parameterType="Optional",
+            direction="Input")
+
+        parameters = [in_lines, cell_size, out_raster, snap_raster]
 
         return parameters
 
@@ -61,9 +68,15 @@ class CalculateCentrality(object):
     def updateMessages(self, parameters):
         return
 
-    def calculate_centrality(self, in_lines, cell_size, out_raster):
+    def calculate_centrality(self, in_lines, cell_size, out_raster, snap_raster):
 
         # calculate distance raster
+
+        if (snap_raster):
+            snapRaster = arcpy.Raster(snap_raster)
+            arcpy.env.snapRaster = snapRaster
+            arcpy.env.extent = snapRaster.extent
+
         in_dist = EucDistance(in_lines, '', cell_size)
         arcpy.env.snapRaster = in_dist
 
@@ -116,8 +129,9 @@ class CalculateCentrality(object):
         in_lines = parameters[0].valueAsText
         cell_size = float(parameters[1].valueAsText.replace(",","."))
         out_raster = parameters[2].valueAsText
+        snap_raster = parameters[3].valueAsText
 
-        self.calculate_centrality(in_lines, cell_size, out_raster)
+        self.calculate_centrality(in_lines, cell_size, out_raster, snap_raster)
         """The source code of the tool."""
 
 class CalculateWidth(object):
@@ -150,7 +164,14 @@ class CalculateWidth(object):
             parameterType="Required",
             direction="Output")
 
-        parameters = [in_lines, cell_size, out_raster]
+        snap_raster = arcpy.Parameter(
+            displayName="Snap raster",
+            name="snap_raster",
+            datatype=["GPRasterLayer"],
+            parameterType="Optional",
+            direction="Input")
+
+        parameters = [in_lines, cell_size, out_raster, snap_raster]
 
         return parameters
 
@@ -207,6 +228,7 @@ class CalculateWidth(object):
         in_lines = parameters[0].valueAsText
         cell_size = float(parameters[1].valueAsText.replace(",","."))
         out_raster = parameters[2].valueAsText
+        snap_raster = parameters[3].valueAsText
 
         arcpy.AddMessage('Generating obstacles...')
         # generate obstacles
@@ -218,6 +240,11 @@ class CalculateWidth(object):
         arcpy.Append_management(in_lines, lines, schema_type='NO_TEST')
 
         # calculate distance raster
+        if(snap_raster):
+            snapRaster = arcpy.Raster(snap_raster)
+            arcpy.env.snapRaster = snapRaster
+            arcpy.env.extent = snapRaster.extent
+
         dist = EucDistance(lines, '', cell_size)
         npdist = arcpy.RasterToNumPyArray(dist)
 
@@ -252,14 +279,14 @@ class SupplContours(object):
             direction="Input")
 
         in_width_raster = arcpy.Parameter(
-            displayName="Input raster",
+            displayName="Input width raster",
             name="in_width_raster",
             datatype=["GPRasterLayer"],
             parameterType="Required",
             direction="Input")
 
         in_centrality_raster = arcpy.Parameter(
-            displayName="Input raster",
+            displayName="Input centrality raster",
             name="in_centrality_raster",
             datatype=["GPRasterLayer"],
             parameterType="Required",
@@ -334,7 +361,7 @@ class SupplContours(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        centrality_ext.value = 0.9
+        centrality_ext.value = 0.8
 
         min_gap=arcpy.Parameter(
             displayName="Gap length",
@@ -397,7 +424,7 @@ class SupplContours(object):
 
     def process_contours(self, in_raster, in_width_raster, in_centrality_raster, out_features,
                         contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
-                        centrality_min, centrality, centrality_max, rmin_gap, rmin_len, rext_len, extend):
+                        centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend):
 
         arcpy.AddMessage('Preparing contours...')
 
@@ -830,9 +857,9 @@ class SupplContours(object):
         rext_len = float(parameters[15].valueAsText.replace(",","."))
         extend = parameters[16].valueAsText
 
-        process_contours(in_raster, in_width_raster, in_centrality_raster, out_features,
+        self.process_contours(in_raster, in_width_raster, in_centrality_raster, out_features,
                         contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
-                        centrality_min, centrality, centrality_max, rmin_gap, rmin_len, rext_len, extend)
+                        centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend)
 
         return
 
@@ -929,7 +956,7 @@ class SupplContoursFull(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        centrality_ext.value = 0.9
+        centrality_ext.value = 0.8
 
         min_gap=arcpy.Parameter(
             displayName="Gap length",
@@ -1016,8 +1043,6 @@ class SupplContoursFull(object):
 
         inRaster = arcpy.Raster(in_raster)
         lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
-        # cell_size = inRaster.meanCellWidth
-
         crs = inRaster.spatialReference # TODO: remove?
 
         arcpy.AddMessage('Preparing contours...')
@@ -1033,14 +1058,15 @@ class SupplContoursFull(object):
         arcpy.PolygonToLine_management(frame, lines)
         arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
 
-
         arcpy.AddMessage('Estimating region width...')
 
         arcpy.env.snapRaster = inRaster
+        arcpy.env.extent = inRaster.extent
 
         # calculate distance raster
         dist = EucDistance(lines, '', cell_size)
         npdist = arcpy.RasterToNumPyArray(dist)
+
 
         # calculate width
         widthCalculator = CalculateWidth()
@@ -1053,15 +1079,12 @@ class SupplContoursFull(object):
         centralityCalculator = CalculateCentrality()
         in_centrality_raster = "in_memory/centr"
 
-        arcpy.env.snapRaster = dist
-        arcpy.env.extent = dist.extent
-
-        centralityCalculator.calculate_centrality(main_contours, cell_size, centr)
+        centralityCalculator.calculate_centrality(main_contours, cell_size, centr, in_width_raster)
 
         mainProcessor = SupplContours()
 
         mainProcessor.execute(in_raster, in_width_raster, in_centrality_raster, out_features,
                         contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
-                        centrality_min, centrality, centrality_max, rmin_gap, rmin_len, rext_len, extend)
+                        centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend)
 
         return
