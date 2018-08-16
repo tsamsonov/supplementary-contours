@@ -44,4 +44,4 @@ to experiment with supplementary contours generation parameters in **Supplementa
 
 Example digital elevation models are contained in DEM.zip archive available from this repository.
 
-(c) Timofey Samsonov, Lomonosov Moscow State University, Faculty of Geography, 2018
+(c) Timofey Samsonov, Lomonosov MSU Faculty of Geography, 2018
