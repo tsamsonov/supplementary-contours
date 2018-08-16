@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Automated generation of supplementary contours
+# 2018 Timofey Samsonov, Lomonosov Moscow State University
+
 import arcpy, numpy, os
 import math
 
@@ -692,6 +695,7 @@ class SupplContours(object):
         return flaglist
 
     # TODO: do not filter or extend, if parameters are set to 1 or 0
+    # TODO: prohibit filling of the terminal gaps in non-closed contours
     def filter_vertices(self, addlayer, in_width_raster, in_centrality_raster, rwidth, rwidth_min, rwidth_max,
                rmin_area, rmin_gap, rmin_len, rext_len, centrality, centrality_min, centrality_ext, extend):
 
