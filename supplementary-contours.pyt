@@ -845,7 +845,7 @@ class SupplContours(object):
                     feature = [p]
                     flag = f
 
-        return feature_info, feature_show, feature_id, feature_height, min_area
+        return feature_info, feature_show, feature_id, feature_height, min_area, width_min
 
     def process_contours(self, in_raster, in_width_raster, in_centrality_raster, out_features,
                         contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
@@ -925,7 +925,7 @@ class SupplContours(object):
         arcpy.AddMessage('Filtering vertices...')
 
         # TODO: more elegant return with single value
-        feature_info, feature_show, feature_id, feature_height, min_area = \
+        feature_info, feature_show, feature_id, feature_height, min_area, width_min = \
             self.filter_vertices(addlayer, in_width_raster, in_centrality_raster, rwidth,
                                  rwidth_min, rwidth_max, rmin_area, rmin_gap, rmin_len, rext_len,
                                  centrality, centrality_min, centrality_ext, extend)
@@ -937,12 +937,20 @@ class SupplContours(object):
         for feature, show, id, height in zip(feature_info, feature_show, feature_id, feature_height):
             cursor.insertRow([feature, "Supplementary", show, id, height])
 
-        # filter small closed contours by area
+        # filter small closed contours by area and average width
 
         arcpy.AddGeometryAttributes_management(seladdclosed, "AREA")
+
+        zonal_stats = 'in_memory/zonalstats'
+        ZonalStatisticsAsTable(seladdclosed, "OBJECTID", in_width_raster,
+                                  zonal_stats, "NODATA", "MEAN")
+
+        arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
+
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
+        # SMALL
         arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" <= ' + str(min_area))
 
         seladdclosed_small = "in_memory/seladdclosed_small"
@@ -955,6 +963,20 @@ class SupplContours(object):
 
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
 
+        # WIDE
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(width_min))
+
+        seladdclosed_narrow = "in_memory/seladdclosed_narrow"
+        arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
+
+        arcpy.SelectLayerByLocation_management(addlayer,
+                                               'SHARE_A_LINE_SEGMENT_WITH',
+                                               seladdclosed_narrow, "",
+                                               "NEW_SELECTION")
+
+        arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
+
+        # Select all closed for output
         arcpy.SelectLayerByLocation_management(addlayer,
                                                'SHARE_A_LINE_SEGMENT_WITH',
                                                seladdclosed, "",
