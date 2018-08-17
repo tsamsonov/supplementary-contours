@@ -14,7 +14,8 @@ class Toolbox(object):
         self.alias = ""
 
         # List of tool classes associated with this toolbox
-        self.tools = [CalculateCentrality, CalculateWidth, GenerateWidthCentralityMask, SupplContours, SupplContoursFull]
+        self.tools = [CalculateCentrality, CalculateWidth, GenerateBorders,
+                      GenerateWidthCentralityMask, SupplContours, SupplContoursFull]
 
 class CalculateCentrality(object):
     def __init__(self):
@@ -135,8 +136,8 @@ class CalculateCentrality(object):
         snap_raster = parameters[3].valueAsText
 
         self.calculate_centrality(in_lines, cell_size, out_raster, snap_raster)
-        """The source code of the tool."""
 
+# TODO: overlay width inside closed empty supplementary contours
 class CalculateWidth(object):
     def __init__(self):
 
@@ -262,6 +263,121 @@ class CalculateWidth(object):
         arcpy.DefineProjection_management(out, dist.spatialReference)
 
         out.save(out_raster)
+
+
+class GenerateBorders(object):
+    def __init__(self):
+
+        self.label = "Generate region borders"
+        self.description = "Generate region borders"
+        self.canRunInBackground = True
+
+    def getParameterInfo(self):
+
+        in_raster = arcpy.Parameter(
+            displayName="Input raster",
+            name="in_raster",
+            datatype=["GPRasterLayer"],
+            parameterType="Required",
+            direction="Input")
+
+        contour_interval=arcpy.Parameter(
+            displayName="Contour interval",
+            name="contour_interval",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+
+        base_contour=arcpy.Parameter(
+            displayName="Base contour level",
+            name="base_contour",
+            datatype="GPDouble",
+            parameterType="Required",
+            direction="Input")
+        base_contour.value = 0.0
+
+        out_features = arcpy.Parameter(
+            displayName="Output borders feature class",
+            name="out_features",
+            datatype="DEFeatureClass",
+            parameterType="Required",
+            direction="Output")
+
+        parameters = [in_raster, contour_interval, base_contour, out_features]
+
+        return parameters
+
+    def isLicensed(self):
+        try:
+            if arcpy.CheckExtension("Spatial") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+        return True
+
+    def updateParameters(self, parameters):
+        return
+
+    def updateMessages(self, parameters):
+        return
+
+    def execute(self, parameters, messages):
+        in_raster = parameters[0].valueAsText
+        contour_interval = float(parameters[1].valueAsText.replace(",","."))
+        base_contour = float(parameters[2].valueAsText.replace(",","."))
+        out_features = parameters[3].valueAsText
+
+        main_contours = "in_memory/main_contours"
+        Contour(in_raster, main_contours, contour_interval, base_contour, 1)
+
+        # Add fields
+        arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
+        arcpy.CalculateField_management(main_contours, "Type", "'Regular'", "PYTHON", "")
+
+        addbaselevel = contour_interval / 2
+        addcontours = "in_memory/additional_contours"
+        Contour(in_raster, addcontours, contour_interval, addbaselevel, 1)
+
+        # Add fields
+        arcpy.AddField_management(addcontours, "Type", "TEXT", field_length=13)
+        arcpy.CalculateField_management(addcontours, "Type", "'Supplementary'", "PYTHON", "")
+
+        addclosed = "in_memory/addclosed"
+        arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
+
+
+        addclosedlayer = "addclosedlayer"
+        arcpy.MakeFeatureLayer_management(addclosed, addclosedlayer)
+
+        arcpy.SelectLayerByLocation_management(addclosedlayer, 'CONTAINS', main_contours,
+                                               "#", "NEW_SELECTION", "INVERT")
+
+        arcpy.SelectLayerByLocation_management(addclosedlayer, 'COMPLETELY_CONTAINS', addcontours,
+                                               "#", "SUBSET_SELECTION", "INVERT")
+
+        seladdclosed = "in_memory/selclosed"
+        arcpy.CopyFeatures_management(addclosedlayer, seladdclosed)
+
+        addlayer = "addlayer"
+        arcpy.MakeFeatureLayer_management(addcontours, addlayer)
+
+        arcpy.SelectLayerByLocation_management(addlayer,
+                                               'SHARE_A_LINE_SEGMENT_WITH',
+                                               seladdclosed)
+
+        # generate obstacles
+        frame = "in_memory/frame"
+        arcpy.MinimumBoundingGeometry_management(main_contours, frame, "ENVELOPE", "ALL")
+
+        arcpy.PolygonToLine_management(frame, out_features)
+
+        # Add fields
+        arcpy.AddField_management(out_features, "Type", "TEXT", field_length=13)
+        arcpy.CalculateField_management(out_features, "Type", "'Boundary'", "PYTHON", "")
+
+        arcpy.Append_management([main_contours, addlayer], out_features, schema_type='NO_TEST')
+
+
 
 class GenerateWidthCentralityMask(object):
     def __init__(self):
@@ -964,7 +1080,7 @@ class SupplContours(object):
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
 
         # WIDE
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(width_min))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(0.5*width_min))
 
         seladdclosed_narrow = "in_memory/seladdclosed_narrow"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
@@ -975,6 +1091,8 @@ class SupplContours(object):
                                                "NEW_SELECTION")
 
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
+
+        # TODO: apply width criteria to border-attached contours too
 
         # Select all closed for output
         arcpy.SelectLayerByLocation_management(addlayer,
