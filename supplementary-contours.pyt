@@ -76,7 +76,7 @@ class CalculateCentrality(object):
 
         # calculate distance raster
 
-        if (snap_raster):
+        if (snap_raster is not None):
             snapRaster = arcpy.Raster(snap_raster)
             arcpy.env.snapRaster = snapRaster
             arcpy.env.extent = snapRaster.extent
@@ -193,7 +193,7 @@ class CalculateWidth(object):
     def updateMessages(self, parameters):
         return
 
-    def calculate_width_circles(self, npdist, cell_size):
+    def calculate_width_circles(self, npdist, cell_size, nodata = -9999):
 
         N = npdist.shape[0]  # row number
         M = npdist.shape[1]  # column number
@@ -201,7 +201,11 @@ class CalculateWidth(object):
 
         for i in range(N):
             for j in range(M):
+
                 radius = npdist[i, j]
+
+                if (radius == nodata):
+                    continue
 
                 w = int(math.ceil(radius/cell_size)) # calculate kernel radius (rounded)
 
@@ -219,7 +223,7 @@ class CalculateWidth(object):
                 x = x[flt_xy]
                 y = y[flt_xy]
 
-                flt_distance = (output[x, y] < radius*2) # filter by values
+                flt_distance = (output[x, y] < radius*2 and npdist[x, y] != nodata) # filter by values
 
                 x = x[flt_distance]
                 y = y[flt_distance]
@@ -1053,9 +1057,9 @@ class SupplContours(object):
         for feature, show, id, height in zip(feature_info, feature_show, feature_id, feature_height):
             cursor.insertRow([feature, "Supplementary", show, id, height])
 
-        # filter small closed contours by area and average width
+        # filter small closed contours by length and average width
 
-        arcpy.AddGeometryAttributes_management(seladdclosed, "AREA")
+        arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH_GEODESIC")
 
         zonal_stats = 'in_memory/zonalstats'
         ZonalStatisticsAsTable(seladdclosed, "OBJECTID", in_width_raster,
@@ -1066,8 +1070,12 @@ class SupplContours(object):
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
+        arcpy.AddMessage([f.name for f in arcpy.ListFields(seladdclosed_layer)])
+
+        arcpy.AddMessage(width_min)
+
         # SMALL
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "POLY_AREA" <= ' + str(min_area))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "PERIM_GEO" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
 
         seladdclosed_small = "in_memory/seladdclosed_small"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
@@ -1346,12 +1354,16 @@ class SupplContoursFull(object):
         arcpy.env.extent = inRaster.extent
 
         # calculate distance raster
-        dist = EucDistance(lines, '', cell_size)
+        dist = EucDistance(lines, '', cexll_size)
         npdist = arcpy.RasterToNumPyArray(dist)
 
 
         # calculate width
         widthCalculator = CalculateWidth()
+
+        arcpy.AddMessage(cell_size)
+        arcpy.AddMessage(lowerLeft)
+
         npwidth = widthCalculator.calculate_width_circles(npdist, cell_size)
         in_width_raster = arcpy.NumPyArrayToRaster(npwidth, lowerLeft, cell_size)
 
@@ -1361,7 +1373,7 @@ class SupplContoursFull(object):
         centralityCalculator = CalculateCentrality()
         in_centrality_raster = "in_memory/centr"
 
-        centralityCalculator.calculate_centrality(main_contours, cell_size, centr, in_width_raster)
+        centralityCalculator.calculate_centrality(main_contours, cell_size, in_centrality_raster, in_width_raster)
 
         mainProcessor = SupplContours()
 
