@@ -147,9 +147,9 @@ class CalculateWidth(object):
 
     def getParameterInfo(self):
 
-        in_lines = arcpy.Parameter(
-            displayName="Input lines",
-            name="in_lines",
+        in_features = arcpy.Parameter(
+            displayName="Input features",
+            name="in_features",
             datatype="GPFeatureLayer",
             parameterType="Required",
             direction="Input")
@@ -175,7 +175,15 @@ class CalculateWidth(object):
             parameterType="Optional",
             direction="Input")
 
-        parameters = [in_lines, cell_size, out_raster, snap_raster]
+        inside = arcpy.Parameter(
+            displayName="Inside only (for polygonal input)",
+            name="inside",
+            datatype="GPBoolean",
+            parameterType="Optional",
+            direction="Input")
+        inside.value = 'false'
+
+        parameters = [in_features, cell_size, out_raster, snap_raster, inside]
 
         return parameters
 
@@ -193,11 +201,11 @@ class CalculateWidth(object):
     def updateMessages(self, parameters):
         return
 
-    def calculate_width_circles(self, npdist, cell_size, nodata = -9999):
+    def calculate_width_circles(self, npdist, cell_size, nodata = -1):
 
         N = npdist.shape[0]  # row number
         M = npdist.shape[1]  # column number
-        output = numpy.zeros((N, M))
+        output = numpy.full((N, M), nodata)
 
         for i in range(N):
             for j in range(M):
@@ -223,7 +231,7 @@ class CalculateWidth(object):
                 x = x[flt_xy]
                 y = y[flt_xy]
 
-                flt_distance = (output[x, y] < radius*2 and npdist[x, y] != nodata) # filter by values
+                flt_distance = output[x, y] < radius*2 # filter by values
 
                 x = x[flt_distance]
                 y = y[flt_distance]
@@ -232,41 +240,79 @@ class CalculateWidth(object):
 
         return output
 
-    def execute(self, parameters, messages):
-        in_lines = parameters[0].valueAsText
-        cell_size = float(parameters[1].valueAsText.replace(",","."))
-        out_raster = parameters[2].valueAsText
-        snap_raster = parameters[3].valueAsText
+    def call(self, in_features, cell_size, out_raster, snap_raster, inside):
 
         arcpy.AddMessage('Generating obstacles...')
-        # generate obstacles
-        frame = "in_memory/frame"
-        arcpy.MinimumBoundingGeometry_management(in_lines, frame, "ENVELOPE", "ALL")
 
-        lines = "in_memory/lines"
-        arcpy.PolygonToLine_management(frame, lines)
-        arcpy.Append_management(in_lines, lines, schema_type='NO_TEST')
+        obstacles = "in_memory/obstacles"
+
+        desc = arcpy.Describe(in_features)
+
+        if desc.shapeType == 'Polygon':
+            arcpy.PolygonToLine_management(in_features, obstacles)
+            if inside == 'true':
+                buffers = 'in_memory/buffers'
+                arcpy.Buffer_analysis(in_features, buffers, cell_size)
+                arcpy.env.mask = buffers
+
+        elif desc.shapeType == 'Polyline':
+            arcpy.CopyFeatures_management(in_features, obstacles)
+        elif desc.shapeType == 'Point':
+            buffers = 'in_memory/buffers'
+            arcpy.Buffer_analysis(in_features, buffers, 0.5 * cell_size)
+            arcpy.PolygonToLine_management(buffers, obstacles)
+        else:
+            return
+
+        if inside != 'true':
+            # generate frame
+            frame = "in_memory/frame"
+            arcpy.MinimumBoundingGeometry_management(in_features, frame, "ENVELOPE", "ALL")
+
+            lines = "in_memory/lines"
+            arcpy.PolygonToLine_management(frame, lines)
+
+            arcpy.Append_management(lines, obstacles, schema_type='NO_TEST')
 
         # calculate distance raster
-        if(snap_raster):
+        if snap_raster:
             snapRaster = arcpy.Raster(snap_raster)
             arcpy.env.snapRaster = snapRaster
             arcpy.env.extent = snapRaster.extent
 
-        dist = EucDistance(lines, '', cell_size)
-        npdist = arcpy.RasterToNumPyArray(dist)
+        dist = EucDistance(obstacles, '', cell_size)
+        # dist.save('in_memory/dist')
+        # nodata = float(dist.noDataValue)
+        # arcpy.AddMessage(nodata)
+
+        npdist = arcpy.RasterToNumPyArray(dist, nodata_to_value=-1)
 
         # execute width calculation
         arcpy.AddMessage('Estimating width...')
-        width = self.calculate_width_circles(npdist, cell_size)
+        width = self.calculate_width_circles(npdist, cell_size, -1)
 
         # convert to georeferenced raster
         arcpy.AddMessage('Saving width raster...')
         lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
-        out = arcpy.NumPyArrayToRaster(width, lleft, cell_size)
+        out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
         arcpy.DefineProjection_management(out, dist.spatialReference)
 
-        out.save(out_raster)
+        if inside == 'true':
+            ExtractByMask(out, in_features).save(out_raster)
+        else:
+            out.save(out_raster)
+
+
+    def execute(self, parameters, messages):
+
+        in_features = parameters[0].valueAsText
+        cell_size = float(parameters[1].valueAsText.replace(",","."))
+        out_raster = parameters[2].valueAsText
+        snap_raster = parameters[3].valueAsText
+        inside = parameters[4].valueAsText
+
+        self.call(in_features, cell_size, out_raster, snap_raster, inside)
+
 
 
 class GenerateBorders(object):
@@ -592,12 +638,12 @@ class SupplContours(object):
         base_contour.value = 0.0
 
         min_area = arcpy.Parameter(
-            displayName="Closed contour area (minimum)",
+            displayName="Closed contour width (average)",
             name="min_area",
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_area.value = 0.1
+        min_area.value = 0.125
 
         width_min = arcpy.Parameter(
             displayName="Region width (minimum)",
@@ -1061,18 +1107,19 @@ class SupplContours(object):
 
         arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH_GEODESIC")
 
+        inside_width = 'in_memory/winside'
+
+        widthCalculator = CalculateWidth()
+        widthCalculator.call(seladdclosed, arcpy.Describe(in_width_raster).meanCellHeight, inside_width, in_width_raster, 'true')
+
         zonal_stats = 'in_memory/zonalstats'
-        ZonalStatisticsAsTable(seladdclosed, "OBJECTID", in_width_raster,
+        ZonalStatisticsAsTable(seladdclosed, "OBJECTID", inside_width,
                                   zonal_stats, "NODATA", "MEAN")
 
         arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
 
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
-
-        arcpy.AddMessage([f.name for f in arcpy.ListFields(seladdclosed_layer)])
-
-        arcpy.AddMessage(width_min)
 
         # SMALL
         arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "PERIM_GEO" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
@@ -1088,7 +1135,7 @@ class SupplContours(object):
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
 
         # WIDE
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(0.5*width_min))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(rmin_area * width_min / rwidth_min))
 
         seladdclosed_narrow = "in_memory/seladdclosed_narrow"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
@@ -1193,7 +1240,7 @@ class SupplContoursFull(object):
         base_contour.value = 0.0
 
         min_area = arcpy.Parameter(
-            displayName="Closed contour area (minimum)",
+            displayName="Closed contour width (average)",
             name="min_area",
             datatype="GPDouble",
             parameterType="Required",
@@ -1357,12 +1404,8 @@ class SupplContoursFull(object):
         dist = EucDistance(lines, '', cexll_size)
         npdist = arcpy.RasterToNumPyArray(dist)
 
-
         # calculate width
         widthCalculator = CalculateWidth()
-
-        arcpy.AddMessage(cell_size)
-        arcpy.AddMessage(lowerLeft)
 
         npwidth = widthCalculator.calculate_width_circles(npdist, cell_size)
         in_width_raster = arcpy.NumPyArrayToRaster(npwidth, lowerLeft, cell_size)
