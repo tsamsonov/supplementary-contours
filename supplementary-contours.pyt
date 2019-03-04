@@ -1105,7 +1105,7 @@ class SupplContours(object):
 
         # filter small closed contours by length and average width
 
-        arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH_GEODESIC")
+        arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH")
 
         inside_width = 'in_memory/winside'
 
@@ -1118,11 +1118,13 @@ class SupplContours(object):
 
         arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
 
+        arcpy.CopyFeatures_management(seladdclosed, 'V:/Supplementary/Contours_new.gdb/seladdclosed')
+
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
         # SMALL
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "PERIM_GEO" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "PERIMETER" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
 
         seladdclosed_small = "in_memory/seladdclosed_small"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
@@ -1134,8 +1136,12 @@ class SupplContours(object):
 
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
 
+        arcpy.AddMessage(rmin_area * width_min / rwidth_min)
+        arcpy.AddMessage(rmin_len * rwidth * width_min / rwidth_min)
+
         # WIDE
         arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(rmin_area * width_min / rwidth_min))
+
 
         seladdclosed_narrow = "in_memory/seladdclosed_narrow"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
