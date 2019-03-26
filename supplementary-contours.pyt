@@ -205,7 +205,7 @@ class CalculateWidth(object):
 
         N = npdist.shape[0]  # row number
         M = npdist.shape[1]  # column number
-        output = numpy.full((N, M), nodata)
+        output = numpy.full((N, M), 0)
 
         for i in range(N):
             for j in range(M):
