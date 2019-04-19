@@ -2,8 +2,11 @@
 # Automated generation of supplementary contours
 # 2018 Timofey Samsonov, Lomonosov Moscow State University
 
-import arcpy, numpy, os
+import arcpy, numpy, os, sys
 import math
+
+import ctypes
+from numpyctypes import c_ndarray
 
 from arcpy.sa import *
 
@@ -201,6 +204,31 @@ class CalculateWidth(object):
     def updateMessages(self, parameters):
         return
 
+    def calculate_width_circles_cpp(self, npeuc, cellsize, nodata):
+        nrow = npeuc.shape[0]
+        ncol = npeuc.shape[1]
+
+        npwid = numpy.full((nrow, ncol), 0)
+
+        c_npeuc = c_ndarray(npeuc, dtype=numpy.double, ndim=2, shape=(nrow, ncol))
+        c_npwid = c_ndarray(npwid, dtype=numpy.double, ndim=2, shape=(nrow, ncol))
+
+        # dll = os.path.dirname(os.path.realpath(__file__))
+        # arcpy.AddMessage(dll)
+        # ctypes.windll.kernel32.SetDllDirectoryW(None)
+        # os.chdir(r'Y:\\GitHub\\supplementary-contours\\')
+
+        westimator = ctypes.CDLL("Y:/GitHub/supplementary-contours/WidthEstimator/cmake-build-release/cygWidthEstimator.dll")
+        # westimator = ctypes.CDLL("C:/Users/tsamsonov/cygWidthEstimator.dll")
+        # westimator = ctypes.cdll.LoadLibrary(os.path.dirname(__file__) + lib)
+
+        westimator.EstimateWidth(c_npeuc, c_npwid, ctypes.c_double(cellsize), ctypes.c_double(nodata))
+
+        return (numpy.ndarray(
+            shape=(nrow, ncol),
+            buffer=(ctypes.c_double * nrow * ncol).from_address(ctypes.addressof(c_npwid.data.contents))
+        ))
+
     def calculate_width_circles(self, npdist, cell_size, nodata = -1):
 
         N = npdist.shape[0]  # row number
@@ -289,18 +317,27 @@ class CalculateWidth(object):
 
         # execute width calculation
         arcpy.AddMessage('Estimating width...')
-        width = self.calculate_width_circles(npdist, cell_size, -1)
+        width = self.calculate_width_circles_cpp(npdist, cell_size, -1)
 
         # convert to georeferenced raster
         arcpy.AddMessage('Saving width raster...')
-        lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
-        out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
-        arcpy.DefineProjection_management(out, dist.spatialReference)
 
-        if inside == 'true':
-            ExtractByMask(out, in_features).save(out_raster)
-        else:
-            out.save(out_raster)
+        arcpy.AddMessage(width)
+
+        # arcpy.AddMessage(width.max())
+        # arcpy.AddMessage(width.min())
+        # arcpy.AddMessage(width.shape[0])
+        # arcpy.AddMessage(width.shape[1])
+
+
+        # lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
+        # out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
+        # arcpy.DefineProjection_management(out, dist.spatialReference)
+        #
+        # if inside == 'true':
+        #     ExtractByMask(out, in_features).save(out_raster)
+        # else:
+        #     out.save(out_raster)
 
 
     def execute(self, parameters, messages):
