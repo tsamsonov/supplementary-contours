@@ -317,7 +317,7 @@ class CalculateWidth(object):
 
         # execute width calculation
         arcpy.AddMessage('Estimating width...')
-        width = self.calculate_width_circles_cpp(npdist, cell_size, -1)
+        width = self.calculate_width_circles(npdist, cell_size, -1)
 
         # convert to georeferenced raster
         arcpy.AddMessage('Saving width raster...')
@@ -330,14 +330,14 @@ class CalculateWidth(object):
         # arcpy.AddMessage(width.shape[1])
 
 
-        # lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
-        # out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
-        # arcpy.DefineProjection_management(out, dist.spatialReference)
-        #
-        # if inside == 'true':
-        #     ExtractByMask(out, in_features).save(out_raster)
-        # else:
-        #     out.save(out_raster)
+        lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
+        out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
+        arcpy.DefineProjection_management(out, dist.spatialReference)
+
+        if inside == 'true':
+            ExtractByMask(out, in_features).save(out_raster)
+        else:
+            out.save(out_raster)
 
 
     def execute(self, parameters, messages):
