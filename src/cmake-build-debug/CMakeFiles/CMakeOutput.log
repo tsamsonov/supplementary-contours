@@ -1,0 +1,202 @@
+The system is: Windows - 10.0.17763 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx64/x64/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+éØ‚®¨®ß®‡„ÓÈ®© ™Æ¨Ø®´Ô‚Æ‡ Microsoft (R) C/C++ ¢•‡·®® 19.20.27508.1 §´Ô x64
+(C) äÆ‡ØÆ‡†Ê®Ô å†©™‡Æ·Æ‰‚ (Microsoft Corporation).  Ç·• Ø‡†¢† ß†È®È•≠Î.
+
+CMakeCCompilerId.c
+Microsoft (R) Incremental Linker Version 14.20.27508.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCCompilerId.exe 
+CMakeCCompilerId.obj 
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.obj"
+
+The C compiler identification is MSVC, found in "Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/3.13.4/CompilerIdC/CMakeCCompilerId.exe"
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx64/x64/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+éØ‚®¨®ß®‡„ÓÈ®© ™Æ¨Ø®´Ô‚Æ‡ Microsoft (R) C/C++ ¢•‡·®® 19.20.27508.1 §´Ô x64
+(C) äÆ‡ØÆ‡†Ê®Ô å†©™‡Æ·Æ‰‚ (Microsoft Corporation).  Ç·• Ø‡†¢† ß†È®È•≠Î.
+
+CMakeCXXCompilerId.cpp
+Microsoft (R) Incremental Linker Version 14.20.27508.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCXXCompilerId.exe 
+CMakeCXXCompilerId.obj 
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
+
+The CXX compiler identification is MSVC, found in "Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/3.13.4/CompilerIdCXX/CMakeCXXCompilerId.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_85b63\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_85b63.dir\build.make /nologo -L                  CMakeFiles\cmTC_85b63.dir\build
+Building C object CMakeFiles/cmTC_85b63.dir/testCCompiler.c.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm4EDD.tmp
+testCCompiler.c
+Linking C executable cmTC_85b63.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_85b63.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_85b63.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5065.tmp
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_d36d7\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_d36d7.dir\build.make /nologo -L                  CMakeFiles\cmTC_d36d7.dir\build
+Building C object CMakeFiles/cmTC_d36d7.dir/CMakeCCompilerABI.c.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5297.tmp
+CMakeCCompilerABI.c
+Linking C executable cmTC_d36d7.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_d36d7.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_d36d7.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5335.tmp
+
+
+
+
+Detecting C [] compiler features compiled with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_31beb\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_31beb.dir\build.make /nologo -L                  CMakeFiles\cmTC_31beb.dir\build
+Building C object CMakeFiles/cmTC_31beb.dir/feature_tests.c.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5508.tmp
+feature_tests.c
+Linking C executable cmTC_31beb.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_31beb.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_31beb.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5567.tmp
+
+
+    Feature record: C_FEATURE:1c_function_prototypes
+    Feature record: C_FEATURE:1c_variadic_macros
+Determining if the CXX compiler works passed with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_ddcf6\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_ddcf6.dir\build.make /nologo -L                  CMakeFiles\cmTC_ddcf6.dir\build
+Building CXX object CMakeFiles/cmTC_ddcf6.dir/testCXXCompiler.cxx.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5824.tmp
+testCXXCompiler.cxx
+Linking CXX executable cmTC_ddcf6.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_ddcf6.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_ddcf6.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm58A2.tmp
+
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_eb77d\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_eb77d.dir\build.make /nologo -L                  CMakeFiles\cmTC_eb77d.dir\build
+Building CXX object CMakeFiles/cmTC_eb77d.dir/CMakeCXXCompilerABI.cpp.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5A95.tmp
+CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_eb77d.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_eb77d.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_eb77d.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5B14.tmp
+
+
+
+
+Detecting CXX [] compiler features compiled with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_c7d73\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_c7d73.dir\build.make /nologo -L                  CMakeFiles\cmTC_c7d73.dir\build
+Building CXX object CMakeFiles/cmTC_c7d73.dir/feature_tests.cxx.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5D25.tmp
+feature_tests.cxx
+Linking CXX executable cmTC_c7d73.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_c7d73.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_c7d73.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm5D84.tmp
+
+
+    Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
+    Feature record: CXX_FEATURE:1cxx_alias_templates
+    Feature record: CXX_FEATURE:1cxx_alignas
+    Feature record: CXX_FEATURE:1cxx_alignof
+    Feature record: CXX_FEATURE:1cxx_attributes
+    Feature record: CXX_FEATURE:1cxx_attribute_deprecated
+    Feature record: CXX_FEATURE:1cxx_auto_type
+    Feature record: CXX_FEATURE:1cxx_binary_literals
+    Feature record: CXX_FEATURE:1cxx_constexpr
+    Feature record: CXX_FEATURE:1cxx_contextual_conversions
+    Feature record: CXX_FEATURE:1cxx_decltype
+    Feature record: CXX_FEATURE:1cxx_decltype_auto
+    Feature record: CXX_FEATURE:1cxx_decltype_incomplete_return_types
+    Feature record: CXX_FEATURE:1cxx_default_function_template_args
+    Feature record: CXX_FEATURE:1cxx_defaulted_functions
+    Feature record: CXX_FEATURE:1cxx_defaulted_move_initializers
+    Feature record: CXX_FEATURE:1cxx_delegating_constructors
+    Feature record: CXX_FEATURE:1cxx_deleted_functions
+    Feature record: CXX_FEATURE:1cxx_digit_separators
+    Feature record: CXX_FEATURE:1cxx_enum_forward_declarations
+    Feature record: CXX_FEATURE:1cxx_explicit_conversions
+    Feature record: CXX_FEATURE:1cxx_extended_friend_declarations
+    Feature record: CXX_FEATURE:1cxx_extern_templates
+    Feature record: CXX_FEATURE:1cxx_final
+    Feature record: CXX_FEATURE:1cxx_func_identifier
+    Feature record: CXX_FEATURE:1cxx_generalized_initializers
+    Feature record: CXX_FEATURE:1cxx_generic_lambdas
+    Feature record: CXX_FEATURE:1cxx_inheriting_constructors
+    Feature record: CXX_FEATURE:1cxx_inline_namespaces
+    Feature record: CXX_FEATURE:1cxx_lambdas
+    Feature record: CXX_FEATURE:1cxx_lambda_init_captures
+    Feature record: CXX_FEATURE:1cxx_local_type_template_args
+    Feature record: CXX_FEATURE:1cxx_long_long_type
+    Feature record: CXX_FEATURE:1cxx_noexcept
+    Feature record: CXX_FEATURE:1cxx_nonstatic_member_init
+    Feature record: CXX_FEATURE:1cxx_nullptr
+    Feature record: CXX_FEATURE:1cxx_override
+    Feature record: CXX_FEATURE:1cxx_range_for
+    Feature record: CXX_FEATURE:1cxx_raw_string_literals
+    Feature record: CXX_FEATURE:1cxx_reference_qualified_functions
+    Feature record: CXX_FEATURE:1cxx_return_type_deduction
+    Feature record: CXX_FEATURE:1cxx_right_angle_brackets
+    Feature record: CXX_FEATURE:1cxx_rvalue_references
+    Feature record: CXX_FEATURE:1cxx_sizeof_member
+    Feature record: CXX_FEATURE:1cxx_static_assert
+    Feature record: CXX_FEATURE:1cxx_strong_enums
+    Feature record: CXX_FEATURE:1cxx_template_template_parameters
+    Feature record: CXX_FEATURE:1cxx_thread_local
+    Feature record: CXX_FEATURE:1cxx_trailing_return_types
+    Feature record: CXX_FEATURE:1cxx_unicode_literals
+    Feature record: CXX_FEATURE:1cxx_uniform_initialization
+    Feature record: CXX_FEATURE:1cxx_unrestricted_unions
+    Feature record: CXX_FEATURE:1cxx_user_literals
+    Feature record: CXX_FEATURE:1cxx_variable_templates
+    Feature record: CXX_FEATURE:1cxx_variadic_macros
+    Feature record: CXX_FEATURE:1cxx_variadic_templates
+Performing C++ SOURCE FILE Test HAS_MSVC_GL_LTCG succeeded with the following output:
+Change Dir: Y:/GitHub/supplementary-contours/src/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"nmake" "/nologo" "cmTC_844ce\fast"
+	"C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\bin\HostX64\x64\nmake.exe" -f CMakeFiles\cmTC_844ce.dir\build.make /nologo -L                  CMakeFiles\cmTC_844ce.dir\build
+Building CXX object CMakeFiles/cmTC_844ce.dir/src.cxx.obj
+	C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\cl.exe @C:\Users\TSAMSO~1\AppData\Local\Temp\nm6043.tmp
+src.cxx
+Linking CXX executable cmTC_844ce.exe
+	C:\Users\tsamsonov\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\191.6183.77\bin\cmake\win\bin\cmake.exe -E vs_link_exe --intdir=CMakeFiles\cmTC_844ce.dir --manifests  -- C:\PROGRA~2\MICROS~1\2019\BUILDT~1\VC\Tools\MSVC\1420~1.275\bin\Hostx64\x64\link.exe /nologo @CMakeFiles\cmTC_844ce.dir\objects1.rsp @C:\Users\TSAMSO~1\AppData\Local\Temp\nm60A1.tmp
+LINK : warning LNK4075: —ç—Ö —î—û—à–Ñ‚àö—Ç—Ä—Ö–Ñ—ë¬† "/INCREMENTAL" —à—á-—á—Ä —ë—è—Ö–é—à–á—à—ä—Ä–é—à—à "/LTCG"
+‚ï§—é—á—Ñ—Ä—ç—à—Ö —ä—é—Ñ—Ä
+‚ï§—é—á—Ñ—Ä—ç—à—Ö —ä—é—Ñ—Ä —á—Ä—Ç—Ö–Å¬∞—Ö—ç—é
+LINK : warning LNK4075: —ç—Ö —î—û—à–Ñ‚àö—Ç—Ä—Ö–Ñ—ë¬† "/INCREMENTAL" —à—á-—á—Ä —ë—è—Ö–é—à–á—à—ä—Ä–é—à—à "/LTCG"
+‚ï§—é—á—Ñ—Ä—ç—à—Ö —ä—é—Ñ—Ä
+‚ï§—é—á—Ñ—Ä—ç—à—Ö —ä—é—Ñ—Ä —á—Ä—Ç—Ö–Å¬∞—Ö—ç—é
+
+Source file was:
+int main() { return 0; }

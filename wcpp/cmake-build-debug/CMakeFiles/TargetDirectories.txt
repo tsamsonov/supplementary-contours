@@ -1,5 +1,0 @@
-Y:/GitHub/supplementary-contours/wcpp/cmake-build-debug/CMakeFiles/WidthEstimator.dir
-Y:/GitHub/supplementary-contours/wcpp/cmake-build-debug/CMakeFiles/edit_cache.dir
-Y:/GitHub/supplementary-contours/wcpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-Y:/GitHub/supplementary-contours/wcpp/cmake-build-debug/pybind11/CMakeFiles/rebuild_cache.dir
-Y:/GitHub/supplementary-contours/wcpp/cmake-build-debug/pybind11/CMakeFiles/edit_cache.dir
