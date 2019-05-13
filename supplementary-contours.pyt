@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # Automated generation of supplementary contours
-# 2018 Timofey Samsonov, Lomonosov Moscow State University
+# 2019 Timofey Samsonov and Dmitry Walther, Lomonosov Moscow State University
+#
+# Convention: function arguments with underscore prefix (_) indicate Raster objects:
+#  width_raster - this is a string path to raster object (e.g. 'in_memory/raster' or 'D:/Folder/raster.tif')
+# _width_raster - this is a Raster wrapper around the same object, possibly obtained by arcpy.Raster(width_raster)
 
 import arcpy, numpy, os, sys
 import math
@@ -73,14 +77,14 @@ class CalculateCentrality(object):
     def updateMessages(self, parameters):
         return
 
-    def calculate_centrality(self, in_lines, cell_size, out_raster, snap_raster):
+    def calculate_centrality(self, in_lines, cell_size, out_raster, _snap_raster):
 
-        # calculate distance raster
+        def_snap_raster = arcpy.env.snapRaster
+        def_extent = arcpy.env.extent
 
-        if (snap_raster is not None):
-            snapRaster = arcpy.Raster(snap_raster)
-            arcpy.env.snapRaster = snapRaster
-            arcpy.env.extent = snapRaster.extent
+        if (_snap_raster is not None):
+            arcpy.env.snapRaster = _snap_raster
+            arcpy.env.extent = _snap_raster.extent
 
         in_dist = EucDistance(in_lines, '', cell_size)
         arcpy.env.snapRaster = in_dist
@@ -129,6 +133,9 @@ class CalculateCentrality(object):
         arcpy.Mosaic_management(centr_null, output, "MAXIMUM")
 
         arcpy.CopyRaster_management(output, out_raster)
+
+        arcpy.env.snapRaster = def_snap_raster
+        arcpy.env.extent = def_extent
 
     def execute(self, parameters, messages):
         in_lines = parameters[0].valueAsText
@@ -202,14 +209,14 @@ class CalculateWidth(object):
     def updateMessages(self, parameters):
         return
 
-    def calculate_width_circles_cpp(self, npeuc, cell_size, nodata = -1):
+    def calculate_width_circles_cpp(self, npdist, cell_size, nodata = -1):
 
-            nrow = npeuc.shape[0]
-            ncol = npeuc.shape[1]
+            nrow = npdist.shape[0]
+            ncol = npdist.shape[1]
 
             npwid = numpy.full((nrow, ncol), 0)
 
-            return WidthEstimator.EstimateWidth(npeuc, npwid, cell_size, nodata)
+            return WidthEstimator.EstimateWidth(npdist, npwid, cell_size, nodata)
 
     def calculate_width_circles(self, npdist, cell_size, nodata = -1):
 
@@ -250,9 +257,7 @@ class CalculateWidth(object):
 
         return output
 
-    def call(self, in_features, cell_size, out_raster, snap_raster, inside):
-
-        arcpy.AddMessage('Generating obstacles...')
+    def call(self, in_features, cell_size, out_raster, _snap_raster, inside):
 
         obstacles = "in_memory/obstacles"
 
@@ -285,21 +290,22 @@ class CalculateWidth(object):
             arcpy.Append_management(lines, obstacles, schema_type='NO_TEST')
 
         # calculate distance raster
-        if snap_raster:
-            snapRaster = arcpy.Raster(snap_raster)
-            arcpy.env.snapRaster = snapRaster
-            arcpy.env.extent = snapRaster.extent
+
+        def_snap_raster = arcpy.env.snapRaster
+        def_extent = arcpy.env.extent
+
+        if (_snap_raster is not None):
+            arcpy.env.snapRaster = _snap_raster
+            arcpy.env.extent = _snap_raster.extent
 
         dist = EucDistance(obstacles, '', cell_size)
 
         npdist = arcpy.RasterToNumPyArray(dist, nodata_to_value=-1)
 
         # execute width calculation
-        arcpy.AddMessage('Estimating width...')
         width = self.calculate_width_circles_cpp(npdist, cell_size, -1)
 
         # convert to georeferenced raster
-        arcpy.AddMessage('Saving width raster...')
 
         lleft = arcpy.Point(dist.extent.XMin, dist.extent.YMin)
         out = arcpy.NumPyArrayToRaster(width, lleft, cell_size, cell_size, -1)
@@ -310,6 +316,8 @@ class CalculateWidth(object):
         else:
             out.save(out_raster)
 
+        arcpy.env.snapRaster = def_snap_raster
+        arcpy.env.extent = def_extent
 
     def execute(self, parameters, messages):
 
@@ -320,8 +328,6 @@ class CalculateWidth(object):
         inside = parameters[4].valueAsText
 
         self.call(in_features, cell_size, out_raster, snap_raster, inside)
-
-
 
 class GenerateBorders(object):
     def __init__(self):
@@ -434,8 +440,6 @@ class GenerateBorders(object):
         arcpy.CalculateField_management(out_features, "Type", "'Boundary'", "PYTHON", "")
 
         arcpy.Append_management([main_contours, addlayer], out_features, schema_type='NO_TEST')
-
-
 
 class GenerateWidthCentralityMask(object):
     def __init__(self):
@@ -870,17 +874,15 @@ class SupplContours(object):
 
     # TODO: do not filter or extend, if parameters are set to 1 or 0
     # TODO: prohibit filling of the terminal gaps in non-closed contours
-    def filter_vertices(self, addlayer, in_width_raster, in_centrality_raster, rwidth, rwidth_min, rwidth_max,
+    def filter_vertices(self, addlayer, _widthRaster, _centrRaster, rwidth, rwidth_min, rwidth_max,
                rmin_area, rmin_gap, rmin_len, rext_len, centrality, centrality_min, centrality_ext, extend):
 
-        widthRaster = arcpy.Raster(in_width_raster)
-        centrRaster = arcpy.Raster(in_centrality_raster)
-        cell_size = widthRaster.meanCellWidth
-        lowerLeft = arcpy.Point(widthRaster.extent.XMin, widthRaster.extent.YMin)
-        crs = widthRaster.spatialReference  # TODO: remove?
+        cell_size = _widthRaster.meanCellWidth
+        lowerLeft = arcpy.Point(_widthRaster.extent.XMin, _widthRaster.extent.YMin)
+        crs = _widthRaster.spatialReference  # TODO: remove?
 
-        npwidth = arcpy.RasterToNumPyArray(widthRaster)
-        npcentr = arcpy.RasterToNumPyArray(centrRaster)
+        npwidth = arcpy.RasterToNumPyArray(_widthRaster)
+        npcentr = arcpy.RasterToNumPyArray(_centrRaster)
 
         maxwidth = numpy.amax(npwidth)
 
@@ -1021,29 +1023,12 @@ class SupplContours(object):
 
         return feature_info, feature_show, feature_id, feature_height, min_area, width_min
 
-    def process_contours(self, in_raster, in_width_raster, in_centrality_raster, out_features,
-                        contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
+    def process_contours(self, main_contours, addcontours, _width_raster, _centrality_raster, out_features,
+                        rmin_area, rwidth_min, rwidth, rwidth_max,
                         centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend):
-
-        arcpy.AddMessage('Preparing contours...')
-
-        main_contours = "in_memory/main_contours"
-        Contour(in_raster, main_contours, contour_interval, base_contour, 1)
-
-        addbaselevel = contour_interval / 2
-        addcontours = "in_memory/additional_contours"
-        Contour(in_raster, addcontours, contour_interval, addbaselevel, 1)
 
         addclosed = "in_memory/addclosed"
         arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
-
-        # generate obstacles
-        frame = "in_memory/frame"
-        arcpy.MinimumBoundingGeometry_management(main_contours, frame, "ENVELOPE", "ALL")
-
-        lines = "in_memory/lines"
-        arcpy.PolygonToLine_management(frame, lines)
-        arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
 
         # Add fields
         arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
@@ -1096,15 +1081,16 @@ class SupplContours(object):
                                                "NEW_SELECTION",
                                                "INVERT")
 
-        arcpy.AddMessage('Filtering vertices...')
+        arcpy.AddMessage('PROCESSING OPEN SUPPL CONTOURS...')
+        arcpy.AddMessage('-- Filtering vertices...')
 
         # TODO: more elegant return with single value
         feature_info, feature_show, feature_id, feature_height, min_area, width_min = \
-            self.filter_vertices(addlayer, in_width_raster, in_centrality_raster, rwidth,
+            self.filter_vertices(addlayer, _width_raster, _centrality_raster, rwidth,
                                  rwidth_min, rwidth_max, rmin_area, rmin_gap, rmin_len, rext_len,
                                  centrality, centrality_min, centrality_ext, extend)
 
-        arcpy.AddMessage('Combining results...')
+        arcpy.AddMessage('-- Reconstructing lines...')
 
         cursor = arcpy.da.InsertCursor(main_contours, ["SHAPE@", "Type", "SHOW", "Id", "Contour"])
 
@@ -1113,26 +1099,29 @@ class SupplContours(object):
 
         # filter small closed contours by length and average width
 
+        arcpy.AddMessage('PROCESSING CLOSED SUPPL CONTOURS...')
         arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH")
 
+        arcpy.AddMessage('-- Estimating width...')
         inside_width = 'in_memory/winside'
-
         widthCalculator = CalculateWidth()
-        widthCalculator.call(seladdclosed, arcpy.Describe(in_width_raster).meanCellHeight, inside_width, in_width_raster, 'true')
+        widthCalculator.call(seladdclosed, _width_raster.meanCellHeight, inside_width, _width_raster, 'true')
 
+        arcpy.AddMessage('-- Filtering lines...')
         zonal_stats = 'in_memory/zonalstats'
         ZonalStatisticsAsTable(seladdclosed, "OBJECTID", inside_width,
                                   zonal_stats, "NODATA", "MEAN")
 
         arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
 
-        arcpy.CopyFeatures_management(seladdclosed, 'V:/Supplementary/Contours_new.gdb/seladdclosed')
+        # arcpy.CopyFeatures_management(seladdclosed, 'V:/Supplementary/Contours_new.gdb/seladdclosed')
 
         seladdclosed_layer = "selected_add_closed_layer"
         arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
         # SMALL
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "PERIMETER" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
+                                                ' "PERIMETER" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
 
         seladdclosed_small = "in_memory/seladdclosed_small"
         arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
@@ -1144,11 +1133,9 @@ class SupplContours(object):
 
         arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
 
-        arcpy.AddMessage(rmin_area * width_min / rwidth_min)
-        arcpy.AddMessage(rmin_len * rwidth * width_min / rwidth_min)
-
         # WIDE
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION", ' "MEAN" < ' + str(rmin_area * width_min / rwidth_min))
+        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
+                                                ' "MEAN" < ' + str(rmin_area * width_min / rwidth_min))
 
 
         seladdclosed_narrow = "in_memory/seladdclosed_narrow"
@@ -1169,24 +1156,18 @@ class SupplContours(object):
                                                seladdclosed, "",
                                                "NEW_SELECTION")
 
-        arcpy.AddMessage('Saving output...')
+        arcpy.AddMessage('MERGING RESULTS...')
 
-        # Объединение всех видов горизонталей
+        # Merge all contour types
         arcpy.Merge_management([main_contours, addlayer], out_features)
 
-        arcpy.AddField_management(out_features, "Index", "SHORT")
-
-        arcpy.CalculateField_management(out_features, "Index",
-                                        "abs(!Contour! - " + str(base_contour) + ") % " + str(
-                                            5 * contour_interval) + " < " + str(0.25 * contour_interval),
-                                        "PYTHON", "")
         return
 
     def execute(self, parameters, messages):
 
         in_raster = parameters[0].valueAsText
-        in_width_raster = parameters[1].valueAsText
-        in_centrality_raster = parameters[2].valueAsText
+        width_raster = parameters[1].valueAsText
+        centrality_raster = parameters[2].valueAsText
 
         out_features = parameters[3].valueAsText
 
@@ -1208,9 +1189,29 @@ class SupplContours(object):
         rext_len = float(parameters[15].valueAsText.replace(",","."))
         extend = parameters[16].valueAsText
 
-        self.process_contours(in_raster, in_width_raster, in_centrality_raster, out_features,
-                        contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
-                        centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend)
+        arcpy.AddMessage('PREPARING CONTOURS...')
+
+        main_contours = "in_memory/main_contours"
+        Contour(in_raster, main_contours, contour_interval, base_contour, 1)
+
+        addbaselevel = contour_interval / 2
+        addcontours = "in_memory/additional_contours"
+        Contour(in_raster, addcontours, contour_interval, addbaselevel, 1)
+
+        self.process_contours(main_contours, addcontours,
+                              arcpy.Raster(width_raster), arcpy.Raster(centrality_raster),
+                              out_features,
+                              rmin_area, rwidth_min, rwidth, rwidth_max,
+                              centrality_min, centrality, centrality_ext,
+                              rmin_gap, rmin_len, rext_len,
+                              extend)
+
+        arcpy.AddField_management(out_features, "Index", "SHORT")
+
+        arcpy.CalculateField_management(out_features, "Index",
+                                        "abs(!Contour! - " + str(base_contour) + ") % " +
+                                        str(5 * contour_interval) + " < " + str(0.25 * contour_interval),
+                                        "PYTHON", "")
 
         return
 
@@ -1392,14 +1393,14 @@ class SupplContoursFull(object):
         rext_len = float(parameters[14].valueAsText.replace(",","."))
         extend = parameters[15].valueAsText
 
-        inRaster = arcpy.Raster(in_raster)
-        lowerLeft = arcpy.Point(inRaster.extent.XMin, inRaster.extent.YMin)
-        crs = inRaster.spatialReference # TODO: remove?
-
-        arcpy.AddMessage('Preparing contours...')
+        arcpy.AddMessage('PREPARING CONTOURS...')
 
         main_contours="in_memory/main_contours"
         Contour(in_raster, main_contours, contour_interval, base_contour, 1)
+
+        addbaselevel = contour_interval / 2
+        addcontours = "in_memory/additional_contours"
+        Contour(in_raster, addcontours, contour_interval, addbaselevel, 1)
 
         # generate obstacles
         frame = "in_memory/frame"
@@ -1409,33 +1410,49 @@ class SupplContoursFull(object):
         arcpy.PolygonToLine_management(frame, lines)
         arcpy.Append_management(main_contours, lines, schema_type='NO_TEST')
 
-        arcpy.AddMessage('Estimating region width...')
+        arcpy.AddMessage('ESTIMATING WIDTH...')
 
-        arcpy.env.snapRaster = inRaster
-        arcpy.env.extent = inRaster.extent
+        _in_raster = arcpy.Raster(in_raster)
+        lowerLeft = arcpy.Point(_in_raster.extent.XMin, _in_raster.extent.YMin)
+        crs = _in_raster.spatialReference # TODO: remove?
+
+        arcpy.env.snapRaster = _in_raster
+        arcpy.env.extent = _in_raster.extent
 
         # calculate distance raster
-        dist = EucDistance(lines, '', cexll_size)
+        dist = EucDistance(lines, '', cell_size)
         npdist = arcpy.RasterToNumPyArray(dist)
 
         # calculate width
         widthCalculator = CalculateWidth()
 
-        npwidth = widthCalculator.calculate_width_circles(npdist, cell_size)
-        in_width_raster = arcpy.NumPyArrayToRaster(npwidth, lowerLeft, cell_size)
+        npwidth = widthCalculator.calculate_width_circles_cpp(npdist, cell_size, -1)
+        _width_raster = arcpy.NumPyArrayToRaster(npwidth, lowerLeft, cell_size, cell_size, -1)
+        arcpy.DefineProjection_management(_width_raster, dist.spatialReference)
 
-        arcpy.AddMessage('Estimating centrality...')
+        arcpy.AddMessage('ESTIMATING CENTRALITY...')
 
         # calculate centrality
         centralityCalculator = CalculateCentrality()
-        in_centrality_raster = "in_memory/centr"
+        centrality_raster = "in_memory/centr"
 
-        centralityCalculator.calculate_centrality(main_contours, cell_size, in_centrality_raster, in_width_raster)
+        centralityCalculator.calculate_centrality(main_contours, cell_size, centrality_raster, _width_raster)
 
         mainProcessor = SupplContours()
 
-        mainProcessor.execute(in_raster, in_width_raster, in_centrality_raster, out_features,
-                        contour_interval, base_contour, rmin_area, rwidth_min, rwidth, rwidth_max,
-                        centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend)
+        mainProcessor.process_contours(main_contours, addcontours,
+                                       _width_raster, arcpy.Raster(centrality_raster),
+                                       out_features,
+                                       rmin_area, rwidth_min, rwidth, rwidth_max,
+                                       centrality_min, centrality, centrality_ext,
+                                       rmin_gap, rmin_len, rext_len,
+                                       extend)
+
+        arcpy.AddField_management(out_features, "Index", "SHORT")
+
+        arcpy.CalculateField_management(out_features, "Index",
+                                        "abs(!Contour! - " + str(base_contour) + ") % " +
+                                        str(5 * contour_interval) + " < " + str(0.25 * contour_interval),
+                                        "PYTHON", "")
 
         return
