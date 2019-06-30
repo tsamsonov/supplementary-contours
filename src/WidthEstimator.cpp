@@ -8,7 +8,7 @@
 
 namespace py = pybind11;
 
-py::array_t<double> EstimateWidth(py::array_t<double> ceuc, py::array_t<double> cwidth, double cellsize, double nodata) {
+py::array_t<double> estimate_width(py::array_t<double> ceuc, py::array_t<double> cwidth, double cellsize, double nodata) {
 
 
     auto buf_euc = ceuc.request(), buf_width = cwidth.request();
@@ -67,11 +67,11 @@ PYBIND11_MODULE(WidthEstimator, m) {
         .. autosummary::
            :toctree: _generate
 
-           EstimateWidth
+           estimate_width
 
     )pbdoc";
 
-    m.def("EstimateWidth", &EstimateWidth, R"pbdoc(
+    m.def("estimate_width", &estimate_width, R"pbdoc(
         Estimate local region width
 
         See the following article for details: Samsonov T., Koshel S, Walther D., Jenny B. Automated placement of supplementary contour lines // International Journal of Geographical Information Science. — 2019. — Vol. 33. — DOI: 10.1080/13658816.2019.1610965

@@ -11,7 +11,7 @@ set(CMAKE_CXX_COMPILER_ID "MSVC")
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../pybind11/include"
-  "C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/include"
+  "C:/Python27/ArcGIS10.6/include"
   )
 
 # Targets to which this target links.

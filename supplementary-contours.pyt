@@ -8,9 +8,15 @@
 
 import arcpy, numpy, os, sys
 import math
-import WidthEstimator
-
 from arcpy.sa import *
+
+print(sys.version_info)
+
+if sys.version_info[:2] == (2, 7): # ArcGIS for Desktop 10.3+, Python 2.7 (32 Bit)
+    import WidthEstimator
+elif sys.version_info[:2] == (3, 6): # ArcGIS Pro, Python 3.6 (64 Bit)
+    import WidthEstimator3 as WidthEstimator
+
 
 class Toolbox(object):
     def __init__(self):
@@ -1499,7 +1505,7 @@ class SupplementaryContoursFull(object):
         # calculate width
         widthCalculator = RegionWidth()
 
-        nwidth = widthCalculator.calculate_width_circles_cpp(npdist, cell_size, -1) if mode == 'CPP' \
+        npwidth = widthCalculator.calculate_width_circles_cpp(npdist, cell_size, -1) if mode == 'CPP' \
             else widthCalculator.calculate_width_circles(npdist, cell_size, -1)
 
         _width_raster = arcpy.NumPyArrayToRaster(npwidth, lowerLeft, cell_size, cell_size, -1)
@@ -1521,7 +1527,7 @@ class SupplementaryContoursFull(object):
                                        rclosed_width_avg, rwidth_min, rwidth, rwidth_max,
                                        centrality_min, centrality, centrality_ext,
                                        rmin_gap, rmin_len, rext_len,
-                                       extend, absolut, mode)
+                                       extend, absolute, mode)
 
         arcpy.AddField_management(out_features, "Index", "SHORT")
 

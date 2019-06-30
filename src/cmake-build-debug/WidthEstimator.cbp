@@ -18,14 +18,14 @@
 				</MakeCommands>
 			</Target>
 			<Target title="WidthEstimator">
-				<Option output="Y:/GitHub/supplementary-contours/src/cmake-build-debug/WidthEstimator.cp36-win_amd64.pyd" prefix_auto="0" extension_auto="0"/>
+				<Option output="Y:/GitHub/supplementary-contours/src/cmake-build-debug/WidthEstimator.pyd" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="Y:/GitHub/supplementary-contours/src/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="msvc8"/>
 				<Compiler>
 					<Add directory="Y:/GitHub/supplementary-contours/src/pybind11/include"/>
-					<Add directory="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/include"/>
+					<Add directory="C:/Python27/ArcGIS10.6/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>
@@ -41,14 +41,14 @@
 				</MakeCommands>
 			</Target>
 			<Target title="WidthEstimator/fast">
-				<Option output="Y:/GitHub/supplementary-contours/src/cmake-build-debug/WidthEstimator.cp36-win_amd64.pyd" prefix_auto="0" extension_auto="0"/>
+				<Option output="Y:/GitHub/supplementary-contours/src/cmake-build-debug/WidthEstimator.pyd" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="Y:/GitHub/supplementary-contours/src/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="msvc8"/>
 				<Compiler>
 					<Add directory="Y:/GitHub/supplementary-contours/src/pybind11/include"/>
-					<Add directory="C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/include"/>
+					<Add directory="C:/Python27/ArcGIS10.6/include"/>
 					<Add directory="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.20.27508\include"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\ucrt"/>
 					<Add directory="C:\Program Files (x86)\Windows Kits\10\include\10.0.17763.0\shared"/>

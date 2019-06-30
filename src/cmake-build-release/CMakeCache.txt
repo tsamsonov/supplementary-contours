@@ -33,7 +33,7 @@ CMAKE_CODEBLOCKS_MAKE_ARGUMENTS:STRING=
 CMAKE_COLOR_MAKEFILE:BOOL=ON
 
 //CXX compiler
-CMAKE_CXX_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx64/x64/cl.exe
+CMAKE_CXX_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx86/x86/cl.exe
 
 //Flags used by the CXX compiler during all build types.
 CMAKE_CXX_FLAGS:STRING=/DWIN32 /D_WINDOWS /W3 /GR /EHsc
@@ -54,7 +54,7 @@ CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=/MD /Zi /O2 /Ob1 /DNDEBUG
 CMAKE_CXX_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
 
 //C compiler
-CMAKE_C_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx64/x64/cl.exe
+CMAKE_C_COMPILER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx86/x86/cl.exe
 
 //Flags used by the C compiler during all build types.
 CMAKE_C_FLAGS:STRING=/DWIN32 /D_WINDOWS /W3
@@ -75,7 +75,7 @@ CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=/MD /Zi /O2 /Ob1 /DNDEBUG
 CMAKE_C_STANDARD_LIBRARIES:STRING=kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
 
 //Flags used by the linker during all build types.
-CMAKE_EXE_LINKER_FLAGS:STRING=/machine:x64
+CMAKE_EXE_LINKER_FLAGS:STRING=/machine:X86
 
 //Flags used by the linker during DEBUG builds.
 CMAKE_EXE_LINKER_FLAGS_DEBUG:STRING=/debug /INCREMENTAL
@@ -141,14 +141,14 @@ CMAKE_INSTALL_SHAREDSTATEDIR:PATH=com
 CMAKE_INSTALL_SYSCONFDIR:PATH=etc
 
 //Path to a program.
-CMAKE_LINKER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx64/x64/link.exe
+CMAKE_LINKER:FILEPATH=C:/Program Files (x86)/Microsoft Visual Studio/2019/BuildTools/VC/Tools/MSVC/14.20.27508/bin/Hostx86/x86/link.exe
 
 //Program used to build from makefiles.
 CMAKE_MAKE_PROGRAM:STRING=nmake
 
 //Flags used by the linker during the creation of modules during
 // all build types.
-CMAKE_MODULE_LINKER_FLAGS:STRING=/machine:x64
+CMAKE_MODULE_LINKER_FLAGS:STRING=/machine:X86
 
 //Flags used by the linker during the creation of modules during
 // DEBUG builds.
@@ -176,7 +176,7 @@ CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 CMAKE_PROJECT_NAME:STATIC=WidthEstimator
 
 //RC compiler
-CMAKE_RC_COMPILER:FILEPATH=C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x64/rc.exe
+CMAKE_RC_COMPILER:FILEPATH=C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/rc.exe
 
 //Flags for Windows Resource Compiler during all build types.
 CMAKE_RC_FLAGS:STRING=/DWIN32
@@ -195,7 +195,7 @@ CMAKE_RC_FLAGS_RELWITHDEBINFO:STRING=
 
 //Flags used by the linker during the creation of shared libraries
 // during all build types.
-CMAKE_SHARED_LINKER_FLAGS:STRING=/machine:x64
+CMAKE_SHARED_LINKER_FLAGS:STRING=/machine:X86
 
 //Flags used by the linker during the creation of shared libraries
 // during DEBUG builds.
@@ -222,7 +222,7 @@ CMAKE_SKIP_RPATH:BOOL=NO
 
 //Flags used by the linker during the creation of static libraries
 // during all build types.
-CMAKE_STATIC_LINKER_FLAGS:STRING=/machine:x64
+CMAKE_STATIC_LINKER_FLAGS:STRING=/machine:X86
 
 //Flags used by the linker during the creation of static libraries
 // during DEBUG builds.
@@ -253,7 +253,7 @@ PYBIND11_CPP_STANDARD:STRING=/std:c++14
 //Install pybind11 header files?
 PYBIND11_INSTALL:BOOL=OFF
 
-PYBIND11_PYTHON_VERSION:STRING=3.6
+PYBIND11_PYTHON_VERSION:STRING=2.7
 
 //Build pybind11 test suite?
 PYBIND11_TEST:BOOL=OFF
@@ -266,7 +266,7 @@ USE_PYTHON_INCLUDE_DIR:BOOL=OFF
 WidthEstimator_BINARY_DIR:STATIC=Y:/GitHub/supplementary-contours/src/cmake-build-release
 
 //Dependencies for the target
-WidthEstimator_LIB_DEPENDS:STATIC=general;C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/libs/Python36.lib;
+WidthEstimator_LIB_DEPENDS:STATIC=general;C:/Python27/ArcGIS10.6/libs/Python27.lib;
 
 //Value Computed by CMake
 WidthEstimator_SOURCE_DIR:STATIC=Y:/GitHub/supplementary-contours/src
@@ -447,9 +447,9 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding PYTHON
-FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe
+FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=C:/Python27/ArcGIS10.6/python.exe
 //Details about finding PythonInterp
-FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/python.exe][v3.6.6(3.6)]
+FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[C:/Python27/ArcGIS10.6/python.exe][v2.7.14(2.7)]
 //Test HAS_MSVC_GL_LTCG
 HAS_MSVC_GL_LTCG:INTERNAL=1
 PYBIND11_INCLUDE_DIR:INTERNAL=Y:/GitHub/supplementary-contours/src/pybind11/include
@@ -458,9 +458,9 @@ PYBIND11_LTO_LINKER_FLAGS:INTERNAL=-LTCG
 PYBIND11_VERSION_MAJOR:INTERNAL=2
 PYBIND11_VERSION_MINOR:INTERNAL=2
 PYBIND11_VERSION_PATCH:INTERNAL=0
-PYTHON_INCLUDE_DIRS:INTERNAL=C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/include
-PYTHON_LIBRARIES:INTERNAL=C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/libs/Python36.lib
-PYTHON_MODULE_EXTENSION:INTERNAL=.cp36-win_amd64.pyd
+PYTHON_INCLUDE_DIRS:INTERNAL=C:/Python27/ArcGIS10.6/include
+PYTHON_LIBRARIES:INTERNAL=C:/Python27/ArcGIS10.6/libs/Python27.lib
+PYTHON_MODULE_EXTENSION:INTERNAL=.pyd
 PYTHON_MODULE_PREFIX:INTERNAL=
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=C:/Program Files (x86)/WidthEstimator
