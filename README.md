@@ -1,11 +1,12 @@
 # Supplementary contours
 
-Contours are widely used for graphical representation of continuous fields such as elevation, temperature and gravity. Contour lines are dense in areas of high gradient of the field (where the value grows rapidly) and are sparse in other areas. Therefore, contours depict the areas of high gradient in more detail. To reveal the surface features that are hidden between sparsely placed contours, additional supplementary contours are used. These contours may start and end at
-arbitrary points and does not have to fully trace the corresponding isoline. Supplementary contours are drawn only in the areas where their presence gives valuable information to map user and does not produce additional clutter in the image.
+Supplementary contour lines are placed between regular contour lines to visualize small but important forms that regular contour lines are unable to show. On topographic maps, typical forms are hillcrests, depressions, saddles, terraces, banks, and levees. 
 
-![Supplementary contours by Eduard Imhof (Cartographic Relief Representation, 1982)](thumb.png)
+*Supplementary contours by drawn by Eduard Imhof (Cartographic Relief Representation, 1982):*
 
-This repository contains ArcGIS Python toolbox for automated supplementary contours generation. You need to have ArcGIS Pro or ArcGIS 10.3+ to use it.
+![Supplementary contours by Eduard Imhof (Cartographic Relief Representation, 1982)](img/imhof.png)
+
+This repository contains ArcGIS Python toolbox for automated plscement of supplementary contour lines. You need ArcGIS Pro or ArcGIS 10.3+ to use it.
 
 The **processing workflow** is as follows:
 
