@@ -6,7 +6,8 @@
 
 ![Supplementary contours by Eduard Imhof (Cartographic Relief Representation, 1982)](img/contour_types.png)
 
-**supplementary-contours** ArcGIS Python toolbox provides the complete set of tools for generation of supplementary, regular and index contours. You need ArcGIS Pro or ArcGIS 10.3+ to use it.
+**supplementary-contours** ArcGIS Python toolbox provides the complete set of tools for generation of supplementary, regular and index contours. You need ArcGIS Pro or ArcGIS 10.3+ to use it. Example digital elevation models are contained in DEM.zip archive available from `data` folder of this repository.
+
 
 Processing workflow includes the following steps:
 
@@ -33,10 +34,8 @@ pixels under the regular contours have *C = 0*.
 
 6. **Width-centrality mask** tool combines width and centrality rasters and produces the raster which masks the suitable areas for supplementary contours generation.
 
-Example digital elevation models are contained in DEM.zip archive available from `data` folder of this repository.
-
 A detailed description of the method can be found in the following paper:
 
 *Samsonov T., Koshel S, Walther D., Jenny B.* Automated placement of supplementary contour lines // **International Journal of Geographical Information Science**. — 2019. — Vol. 33. — DOI: 10.1080/13658816.2019.1610965
 
-(c) Timofey Samsonov & Dmitry Walther, Lomonosov MSU Faculty of Geography, 2017-2019
+© 2017-2019, Timofey Samsonov & Dmitry Walther, Lomonosov MSU Faculty of Geography.

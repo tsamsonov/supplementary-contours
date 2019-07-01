@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="fca0d6ad-ea67-4dd8-813c-c7d5a642a51f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/imhof.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/supplementary-contours.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.pyt.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -36,8 +34,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="170">
-                <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+              <first_editor relative-caret-position="680">
+                <caret line="40" column="1" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
               </first_editor>
               <second_editor />
             </state>
@@ -218,7 +216,7 @@
       <workItem from="1561807038529" duration="9908000" />
       <workItem from="1561909342836" duration="4195000" />
       <workItem from="1561994710060" duration="7963000" />
-      <workItem from="1562013013566" duration="872000" />
+      <workItem from="1562013013566" duration="1072000" />
     </task>
     <task id="LOCAL-00001" summary="repair incorrect contour extension">
       <created>1534085675751</created>
@@ -280,7 +278,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="39029000" />
+    <option name="totallyTimeSpent" value="39229000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -429,8 +427,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="170">
-            <caret line="10" column="20" selection-start-line="10" selection-start-column="20" selection-end-line="10" selection-end-column="20" />
+          <first_editor relative-caret-position="680">
+            <caret line="40" column="1" selection-start-line="40" selection-start-column="1" selection-end-line="40" selection-end-column="1" />
           </first_editor>
           <second_editor />
         </state>
