@@ -1,22 +1,22 @@
 # Supplementary contours
 
-Supplementary contour lines are placed between regular contour lines to visualize small but important forms that regular contour lines are unable to show. On topographic maps, typical forms are hillcrests, depressions, saddles, terraces, banks, and levees. 
+**Supplementary contour lines** are placed between regular contour lines to visualize small but important terrain forms that regular contour lines are unable to show. On topographic maps, typical forms are hillcrests, depressions, saddles, terraces, banks, and levees. 
 
-*Supplementary contours by drawn by Eduard Imhof (Cartographic Relief Representation, 1982):*
+*Contour types drawn by Eduard Imhof (Cartographic Relief Representation, 1982):*
 
-![Supplementary contours by Eduard Imhof (Cartographic Relief Representation, 1982)](img/imhof.png)
+![Supplementary contours by Eduard Imhof (Cartographic Relief Representation, 1982)](img/contour_types.png)
 
-This repository contains ArcGIS Python toolbox for automated plscement of supplementary contour lines. You need ArcGIS Pro or ArcGIS 10.3+ to use it.
+**supplementary-contours** ArcGIS Python toolbox provides the complete set of tools for generation of supplementary, regular and index contours. You need ArcGIS Pro or ArcGIS 10.3+ to use it.
 
-The **processing workflow** is as follows:
+Processing workflow includes the following steps:
 
-1.	Extraction of regular and supplementary contours.
-2.	Subdivision of the area into the set of regions bordered by regular contours and the boundary of interpolation area.
-3.	Calculation of region width and centrality rasters.
-4.	Filtering of supplementary contours' vertices based on width and centrality criteria.
-5.	Short gap filling, small segment removal and extension of supplementary contour segments.
-6.	Filtering of closed supplementary contours based on length and average width criteria.
-7.	Merging the results and flagging of index contours.
+1. Extraction of regular and supplementary contours.
+2. Subdivision of the area into the set of regions bordered by regular contours and the boundary of interpolation area.
+3. Calculation of region width and centrality rasters.
+4. Filtering of supplementary contours' vertices based on width and centrality criteria.
+5. Short gap filling, small segment removal and extension of supplementary contour segments.
+6. Filtering of closed supplementary contours based on length and average width criteria.
+7. Merging the results and flagging of index contours
 
 Six tools are contained in the repository:
 
