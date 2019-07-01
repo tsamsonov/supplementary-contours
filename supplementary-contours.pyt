@@ -997,7 +997,7 @@ class SupplementaryContours(object):
                     fh_list.append(row[2])
 
         feature_info = []
-        feature_show = []
+        feature_Show = []
         feature_id = []
         feature_height = []
 
@@ -1065,149 +1065,177 @@ class SupplementaryContours(object):
                 feature.append(p)
                 if f != flag or i == N - 1:
                     feature_info.append(arcpy.Polyline(arcpy.Array(feature)))
-                    feature_show.append(flag)
+                    feature_Show.append(flag)
                     feature_id.append(id)
                     feature_height.append(height)
                     feature = [p]
                     flag = f
 
-        return feature_info, feature_show, feature_id, feature_height, closed_width_avg, width_min
+        return feature_info, feature_Show, feature_id, feature_height, closed_width_avg, width_min
 
     def process_contours(self, main_contours, addcontours, _width_raster, _centrality_raster, out_features,
+                         contour_interval, base_contour, index_contour,
                          rclosed_width_avg, rwidth_min, rwidth, rwidth_max,
                          centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend, absolute, mode):
-
-        addclosed = "in_memory/addclosed"
-        arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
 
         # Add fields
         arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
         arcpy.CalculateField_management(main_contours, "Type", "'Regular'", "PYTHON", "")
 
-        arcpy.AddField_management(main_contours, "SHOW", "SHORT")
-        arcpy.CalculateField_management(main_contours, "SHOW", 1, "PYTHON", "")
+        arcpy.AddField_management(main_contours, "Show", "SHORT")
+        arcpy.CalculateField_management(main_contours, "Show", 1, "PYTHON", "")
 
         arcpy.AddField_management(addcontours, "Type", "TEXT", field_length=13)
         arcpy.CalculateField_management(addcontours, "Type", "'Supplementary'", "PYTHON_9.3")
 
-        arcpy.AddField_management(addcontours, "SHOW", "SHORT")
-        arcpy.CalculateField_management(addcontours, "SHOW", 1, "PYTHON_9.3")
-
-        arcpy.AddField_management(addclosed, "SHOW", "SHORT")
-        arcpy.CalculateField_management(addclosed, "SHOW", 1, "PYTHON", "")
-
-        cursor = arcpy.da.UpdateCursor(addclosed, ['OID@', 'SHAPE@', 'SHOW'])
-
-        for row in cursor:
-            partnum = 0
-            for part in row[1]:
-                for pnt in part:
-                    if pnt:
-                        None
-                    else:
-                        row[2] = 0
-                        cursor.updateRow(row)
-                partnum += 1
-
-        addclosedlayer = "addclosedlayer"
-        arcpy.MakeFeatureLayer_management(addclosed, addclosedlayer)
-
-        arcpy.SelectLayerByLocation_management(addclosedlayer, 'CONTAINS', main_contours)
-        arcpy.CalculateField_management(addclosedlayer, "SHOW", 0, "PYTHON", "")
-
-        arcpy.SelectLayerByLocation_management(addclosedlayer, 'COMPLETELY_CONTAINS', addcontours)
-        arcpy.CalculateField_management(addclosedlayer, "SHOW", 0, "PYTHON", "")
-
-        arcpy.SelectLayerByAttribute_management(addclosedlayer, "NEW_SELECTION", '"SHOW" = 1')
-        seladdclosed = "in_memory/selclosed"
-        arcpy.CopyFeatures_management(addclosedlayer, seladdclosed)
+        arcpy.AddField_management(addcontours, "Show", "SHORT")
+        arcpy.CalculateField_management(addcontours, "Show", 1, "PYTHON_9.3")
 
         addlayer = "addlayer"
         arcpy.MakeFeatureLayer_management(addcontours, addlayer)
 
-        arcpy.SelectLayerByLocation_management(addlayer,
-                                               'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed, "",
-                                               "NEW_SELECTION",
-                                               "INVERT")
+        addclosed = "in_memory/addclosed"
+        arcpy.FeatureToPolygon_management(addcontours, addclosed, "", "ATTRIBUTES", "")
+
+        seladdclosed = "in_memory/selclosed"
+        closed_processing = False
+
+        if (int(arcpy.GetCount_management(addclosed).getOutput(0)) > 0):
+
+            arcpy.AddField_management(addclosed, "Show", "SHORT")
+            arcpy.CalculateField_management(addclosed, "Show", 1, "PYTHON", "")
+
+            addclosedlayer = "addclosedlayer"
+            arcpy.MakeFeatureLayer_management(addclosed, addclosedlayer)
+
+            arcpy.SelectLayerByLocation_management(addclosedlayer, 'CONTAINS', main_contours)
+            arcpy.CalculateField_management(addclosedlayer, "Show", 0, "PYTHON", "")
+
+            arcpy.SelectLayerByLocation_management(addclosedlayer, 'COMPLETELY_CONTAINS', addcontours)
+            arcpy.CalculateField_management(addclosedlayer, "Show", 0, "PYTHON", "")
+
+            arcpy.SelectLayerByAttribute_management(addclosedlayer, "NEW_SELECTION", '"Show" = 1')
+            seladdclosed = "in_memory/selclosed"
+            arcpy.CopyFeatures_management(addclosedlayer, seladdclosed)
+
+            if (int(arcpy.GetCount_management(seladdclosed).getOutput(0)) > 0):
+
+                # filter small closed contours by length and average width
+                arcpy.AddMessage('PROCESSING CLOSED SUPPLEMENTARY CONTOURS...')
+                closed_processing = True
+                # cursor = arcpy.da.UpdateCursor(seladdclosed, ['OID@', 'SHAPE@', 'Show'])
+                #
+                # for row in cursor:
+                #     partnum = 0
+                #     for part in row[1]:
+                #         for pnt in part:
+                #             if pnt:
+                #                 None
+                #             else:
+                #                 row[2] = 0
+                #                 cursor.updateRow(row)
+                #         partnum += 1
+
+                arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH")
+
+                arcpy.AddMessage('-- Estimating width...')
+                inside_width = 'in_memory/winside'
+                widthCalculator = RegionWidth()
+                widthCalculator.call(seladdclosed, inside_width, _width_raster.meanCellHeight, _width_raster,
+                                     'INSIDE POLYGONS', mode)
+
+                arcpy.AddMessage('-- Filtering lines...')
+                zonal_stats = 'in_memory/zonalstats'
+                ZonalStatisticsAsTable(seladdclosed, "OBJECTID", inside_width,
+                                       zonal_stats, "NODATA", "MEAN")
+
+                arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
+
+                seladdclosed_layer = "selected_add_closed_layer"
+                arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
+
+                # SMALL
+                maxwidth = float(arcpy.GetRasterProperties_management(_width_raster, "MAXIMUM").getOutput(0))
+                width_min = rwidth_min * maxwidth
+                arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
+                                                        ' "PERIMETER" <= ' + str(
+                                                            rmin_len * rwidth * width_min / rwidth_min))
+
+                seladdclosed_small = "in_memory/seladdclosed_small"
+                arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
+
+                arcpy.SelectLayerByLocation_management(addlayer,
+                                                       'SHARE_A_LINE_SEGMENT_WITH',
+                                                       seladdclosed_small, "",
+                                                       "NEW_SELECTION")
+
+                arcpy.CalculateField_management(addlayer, "Show", 0, "PYTHON", "")
+
+                # NARROW
+                arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
+                                                        ' "MEAN" < ' + str(rclosed_width_avg * width_min / rwidth_min))
+
+                seladdclosed_narrow = "in_memory/seladdclosed_narrow"
+                arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
+
+                arcpy.SelectLayerByLocation_management(addlayer,
+                                                       'SHARE_A_LINE_SEGMENT_WITH',
+                                                       seladdclosed_narrow, "",
+                                                       "NEW_SELECTION")
+
+                arcpy.CalculateField_management(addlayer, "Show", 0, "PYTHON", "")
+
+                # TODO: apply width criteria to border-attached contours too
+
+                arcpy.SelectLayerByLocation_management(addlayer,
+                                                       'SHARE_A_LINE_SEGMENT_WITH',
+                                                       seladdclosed, "",
+                                                       "NEW_SELECTION",
+                                                       "INVERT")
 
         arcpy.AddMessage('PROCESSING OPEN SUPPLEMENTARY CONTOURS...')
         arcpy.AddMessage('-- Filtering vertices...')
 
         # TODO: more elegant return with single value
-        feature_info, feature_show, feature_id, feature_height, min_area, width_min = \
+        feature_info, feature_Show, feature_id, feature_height, min_area, width_min = \
             self.filter_vertices(addlayer, _width_raster, _centrality_raster, rwidth,
                                  rwidth_min, rwidth_max, rclosed_width_avg, rmin_gap, rmin_len, rext_len,
                                  centrality, centrality_min, centrality_ext, extend)
 
         arcpy.AddMessage('-- Reconstructing lines...')
 
-        cursor = arcpy.da.InsertCursor(main_contours, ["SHAPE@", "Type", "SHOW", "Id", "Contour"])
+        cursor = arcpy.da.InsertCursor(main_contours, ["SHAPE@", "Type", "Show", "Id", "Contour"])
 
-        for feature, show, id, height in zip(feature_info, feature_show, feature_id, feature_height):
-            cursor.insertRow([feature, "Supplementary", show, id, height])
+        for feature, Show, id, height in zip(feature_info, feature_Show, feature_id, feature_height):
+            cursor.insertRow([feature, "Supplementary", Show, id, height])
 
-        # filter small closed contours by length and average width
-
-        arcpy.AddMessage('PROCESSING CLOSED SUPPLEMENTARY CONTOURS...')
-        arcpy.AddGeometryAttributes_management(seladdclosed, "PERIMETER_LENGTH")
-
-        arcpy.AddMessage('-- Estimating width...')
-        inside_width = 'in_memory/winside'
-        widthCalculator = RegionWidth()
-        widthCalculator.call(seladdclosed, inside_width, _width_raster.meanCellHeight, _width_raster, 'INSIDE POLYGONS', mode)
-
-        arcpy.AddMessage('-- Filtering lines...')
-        zonal_stats = 'in_memory/zonalstats'
-        ZonalStatisticsAsTable(seladdclosed, "OBJECTID", inside_width,
-                                  zonal_stats, "NODATA", "MEAN")
-
-        arcpy.JoinField_management(seladdclosed, 'OBJECTID', zonal_stats, 'OBJECTID_1', "MEAN")
-
-        seladdclosed_layer = "selected_add_closed_layer"
-        arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
-
-        # SMALL
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
-                                                ' "PERIMETER" <= ' + str(rmin_len * rwidth * width_min / rwidth_min))
-
-        seladdclosed_small = "in_memory/seladdclosed_small"
-        arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
-
-        arcpy.SelectLayerByLocation_management(addlayer,
-                                               'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed_small, "",
-                                               "NEW_SELECTION")
-
-        arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
-
-        # WIDE
-        arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
-                                                ' "MEAN" < ' + str(rclosed_width_avg * width_min / rwidth_min))
-
-
-        seladdclosed_narrow = "in_memory/seladdclosed_narrow"
-        arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
-
-        arcpy.SelectLayerByLocation_management(addlayer,
-                                               'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed_narrow, "",
-                                               "NEW_SELECTION")
-
-        arcpy.CalculateField_management(addlayer, "SHOW", 0, "PYTHON", "")
-
-        # TODO: apply width criteria to border-attached contours too
-
-        # Select all closed for output
-        arcpy.SelectLayerByLocation_management(addlayer,
-                                               'SHARE_A_LINE_SEGMENT_WITH',
-                                               seladdclosed, "",
-                                               "NEW_SELECTION")
 
         arcpy.AddMessage('MERGING RESULTS...')
 
         # Merge all contour types
-        arcpy.Merge_management([main_contours, addlayer], out_features)
+        if closed_processing:
+            arcpy.SelectLayerByLocation_management(addlayer,
+                                                   'SHARE_A_LINE_SEGMENT_WITH',
+                                                   seladdclosed, "",
+                                                   "NEW_SELECTION")
+            arcpy.Merge_management([main_contours, addlayer], out_features)
+        else:
+            arcpy.CopyFeatures_management(main_contours, out_features)
+
+        arcpy.AddField_management(out_features, "Index", "SHORT")
+
+        arcpy.CalculateField_management(out_features, "Index",
+                                        "abs(!Contour! - " + str(base_contour) + ") % " +
+                                        str(index_contour * contour_interval) + " < " + str(contour_interval / (index_contour + 1)),
+                                        "PYTHON", "")
+
+        out_layer = 'out_layer'
+        arcpy.MakeFeatureLayer_management(out_features, out_layer)
+        arcpy.SelectLayerByAttribute_management(out_layer, 'NEW_SELECTION', '"Index" = 1')
+        arcpy.CalculateField_management(out_layer, 'Type', '"Index"')
+        arcpy.SelectLayerByAttribute_management(out_layer, 'CLEAR_SELECTION')
+
+        arcpy.DeleteField_management(out_features, 'Index')
 
         return
 
@@ -1251,17 +1279,11 @@ class SupplementaryContours(object):
         self.process_contours(main_contours, addcontours,
                               arcpy.Raster(width_raster), arcpy.Raster(centrality_raster),
                               out_features,
+                              contour_interval, base_contour, index_contour,
                               rmin_area, rwidth_min, rwidth, rwidth_max,
                               centrality_min, centrality, centrality_ext,
                               rmin_gap, rmin_len, rext_len,
                               extend, absolute, mode)
-
-        arcpy.AddField_management(out_features, "Index", "SHORT")
-
-        arcpy.CalculateField_management(out_features, "Index",
-                                        "abs(!Contour! - " + str(base_contour) + ") % " +
-                                        str(index_contour * contour_interval) + " < " + str(contour_interval / (index_contour + 1)),
-                                        "PYTHON", "")
 
         return
 
@@ -1524,16 +1546,10 @@ class SupplementaryContoursFull(object):
         mainProcessor.process_contours(main_contours, addcontours,
                                        _width_raster, arcpy.Raster(centrality_raster),
                                        out_features,
+                                       contour_interval, base_contour, index_contour,
                                        rclosed_width_avg, rwidth_min, rwidth, rwidth_max,
                                        centrality_min, centrality, centrality_ext,
                                        rmin_gap, rmin_len, rext_len,
                                        extend, absolute, mode)
-
-        arcpy.AddField_management(out_features, "Index", "SHORT")
-
-        arcpy.CalculateField_management(out_features, "Index",
-                                        "abs(!Contour! - " + str(base_contour) + ") % " +
-                                        str(index_contour * contour_interval) + " < " + str(contour_interval / (index_contour + 1)),
-                                        "PYTHON", "")
 
         return

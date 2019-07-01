@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fca0d6ad-ea67-4dd8-813c-c7d5a642a51f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img/width-centrality.png" beforeDir="false" afterPath="$PROJECT_DIR$/img/width-centrality.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supplementary-contours.SupplementaryContoursFull.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.SupplementaryContoursFull.pyt.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supplementary-contours.pyt" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.pyt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supplementary-contours.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.pyt.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,11 +21,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="525">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/supplementary-contours.pyt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="317">
-              <caret line="566" column="8" selection-start-line="566" selection-start-column="8" selection-end-line="566" selection-end-column="29" />
+            <state relative-caret-position="76">
+              <caret line="1219" column="67" lean-forward="true" selection-start-line="1219" selection-start-column="67" selection-end-line="1219" selection-end-column="67" />
               <folding>
                 <element signature="e#476#504#0" expanded="true" />
               </folding>
@@ -31,9 +33,16 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
-          <provider selected="true" editor-type-id="text-editor" />
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../generalize-dem/GeneralizeDEM.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="265">
+              <caret line="38" column="67" lean-forward="true" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="67" />
+              <folding>
+                <element signature="e#277#289#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -42,7 +51,13 @@
     <findStrings>
       <find>PointElevation</find>
       <find>mask</find>
+      <find>SelectLayerByAttribute_management</find>
+      <find>Count</find>
+      <find>SHOW</find>
     </findStrings>
+    <replaceStrings>
+      <replace>Show</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -60,8 +75,8 @@
         <option value="$PROJECT_DIR$/cpp/TestWidthEstimator.py" />
         <option value="C:/DLLtest/TestWidthEstimator.py" />
         <option value="$PROJECT_DIR$/src/WidthEstimator.cpp" />
-        <option value="$PROJECT_DIR$/supplementary-contours.pyt" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/supplementary-contours.pyt" />
       </list>
     </option>
   </component>
@@ -191,7 +206,7 @@
       <workItem from="1561795079467" duration="11000" />
       <workItem from="1561807038529" duration="9908000" />
       <workItem from="1561909342836" duration="4195000" />
-      <workItem from="1561994710060" duration="667000" />
+      <workItem from="1561994710060" duration="7602000" />
     </task>
     <task id="LOCAL-00001" summary="repair incorrect contour extension">
       <created>1534085675751</created>
@@ -253,7 +268,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="30861000" />
+    <option name="totallyTimeSpent" value="37796000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -306,14 +321,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="add closed contour filtering based on average region width" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../generalize-dem/GeneralizeDEM.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-9987">
-          <caret line="1" selection-start-line="1" selection-end-line="4" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///Volumes/Data/Arcpy/arcpy/management.py" />
     <entry file="file://$PROJECT_DIR$/README.md" />
     <entry file="file://$USER_HOME$/.qgis2/python/plugins/shp_to_obs/shp_to_obs.py" />
     <entry file="file://C:/Program Files/ArcGIS/Pro/bin/Python/envs/arcgispro-py3/Lib/ctypes/__init__.py" />
@@ -374,18 +381,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Volumes/Data/Arcpy/arcpy/management.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-12385">
+          <caret line="16004" lean-forward="true" selection-start-line="16004" selection-end-line="16004" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../generalize-dem/GeneralizeDEM.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="265">
+          <caret line="38" column="67" lean-forward="true" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="67" />
+          <folding>
+            <element signature="e#277#289#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/supplementary-contours.pyt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="317">
-          <caret line="566" column="8" selection-start-line="566" selection-start-column="8" selection-end-line="566" selection-end-column="29" />
+        <state relative-caret-position="76">
+          <caret line="1219" column="67" lean-forward="true" selection-start-line="1219" selection-start-column="67" selection-end-line="1219" selection-end-column="67" />
           <folding>
             <element signature="e#476#504#0" expanded="true" />
           </folding>
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>
