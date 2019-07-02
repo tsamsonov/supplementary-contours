@@ -12,12 +12,12 @@ from arcpy.sa import *
 
 can_use_cpp = True
 
-if sys.version_info[:2] == (2, 7): # ArcGIS for Desktop 10.3+, Python 2.7 (32 Bit)
+if sys.version_info[:2] == (2, 7): # ArcGIS for Desktop 10.3+, Python 2.7
     try:
         import WidthEstimator
     except:
         can_use_cpp = False
-elif sys.version_info[:2] == (3, 6): # ArcGIS Pro, Python 3.6 (64 Bit)
+elif sys.version_info[:2] == (3, 6): # ArcGIS Pro, Python 3.6
     try:
         import WidthEstimator3 as WidthEstimator
     except:
@@ -1281,7 +1281,7 @@ class SupplementaryContours(object):
         # NORMALIZE THRESHOLD VALUES
         wmax = 1
         if absolute == 'false':
-            wmax = float(arcpy.GetRasterProperties_management(width_raster, "MAXIMUM").getOutput(0))
+            wmax = float(arcpy.GetRasterProperties_management(width_raster, "MAXIMUM").getOutput(0).replace(",","."))
 
         width = rwidth * wmax
         width_min = rwidth_min * wmax
@@ -1569,7 +1569,7 @@ class SupplementaryContoursFull(object):
         # NORMALIZE THRESHOLD VALUES
         wmax = 1
         if absolute == 'false':
-            wmax = float(arcpy.GetRasterProperties_management(_width_raster, "MAXIMUM").getOutput(0))
+            wmax = float(arcpy.GetRasterProperties_management(_width_raster, "MAXIMUM").getOutput(0).replace(",","."))
 
         width = rwidth * wmax
         width_min = rwidth_min * wmax
