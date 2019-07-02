@@ -10,12 +10,18 @@ import arcpy, numpy, os, sys
 import math
 from arcpy.sa import *
 
-print(sys.version_info)
+can_use_cpp = True
 
 if sys.version_info[:2] == (2, 7): # ArcGIS for Desktop 10.3+, Python 2.7 (32 Bit)
-    import WidthEstimator
+    try:
+        import WidthEstimator
+    except:
+        can_use_cpp = False
 elif sys.version_info[:2] == (3, 6): # ArcGIS Pro, Python 3.6 (64 Bit)
-    import WidthEstimator3 as WidthEstimator
+    try:
+        import WidthEstimator3 as WidthEstimator
+    except:
+        can_use_cpp = False
 
 
 class Toolbox(object):
@@ -70,11 +76,11 @@ class Centrality(object):
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -149,7 +155,7 @@ class Centrality(object):
         cell_size = float(parameters[2].valueAsText.replace(",","."))
         snap_raster = parameters[3].valueAsText
 
-        self.calculate_centrality(in_lines, out_raster, cell_size, snap_raster)
+        self.calculate_centrality(in_lines, out_raster, cell_size, arcpy.Raster(snap_raster))
 
 # TODO: overlay width inside closed empty supplementary contours
 class RegionWidth(object):
@@ -204,19 +210,24 @@ class RegionWidth(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        mode.value = 'CPP'
         mode.filter.list = ['CPP', 'PYTHON']
+        if (can_use_cpp):
+            mode.value = 'CPP'
+        else:
+            mode.value = 'PYTHON'
+            mode.enabled = False
+
 
         parameters = [in_features, out_raster, cell_size, snap_raster, interest, mode]
 
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -396,11 +407,11 @@ class RegionBorders(object):
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -541,11 +552,11 @@ class WidthCentralityMask(object):
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -686,7 +697,7 @@ class SupplementaryContours(object):
             direction="Input")
         index_contour.value = 5
         index_contour.filter.type = "Range"
-        index_contour.filter.list = [2, 100]
+        index_contour.filter.list = [2, 10]
 
         closed_width_avg = arcpy.Parameter(
             displayName="Closed contour width (average)",
@@ -772,7 +783,7 @@ class SupplementaryContours(object):
             displayName="Extend to defined centrality",
             name="extend",
             datatype="GPBoolean",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         extend.value = 'true'
 
@@ -780,7 +791,7 @@ class SupplementaryContours(object):
             displayName="Set parameter values in projection units (absolute values)",
             name="absolute",
             datatype="GPBoolean",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         absolute.value = 'false'
 
@@ -790,8 +801,12 @@ class SupplementaryContours(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        mode.value = 'CPP'
         mode.filter.list = ['CPP', 'PYTHON']
+        if (can_use_cpp):
+            mode.value = 'CPP'
+        else:
+            mode.value = 'PYTHON'
+            mode.enabled = False
 
         parameters = [in_raster, in_width_raster, in_centrality_raster, out_features,
                       contour_interval, base_contour, index_contour,
@@ -802,11 +817,11 @@ class SupplementaryContours(object):
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -925,8 +940,8 @@ class SupplementaryContours(object):
 
     # TODO: do not filter or extend, if parameters are set to 1 or 0
     # TODO: prohibit filling of the terminal gaps in non-closed contours (?)
-    def filter_vertices(self, addlayer, _widthRaster, _centrRaster, rwidth, rwidth_min, rwidth_max,
-                        rclosed_width_avg, rmin_gap, rmin_len, rext_len, centrality, centrality_min, centrality_ext, extend):
+    def filter_vertices(self, addlayer, _widthRaster, _centrRaster, width, width_min, width_max,
+                        closed_width_avg, min_gap, min_len, ext_len, centrality, centrality_min, centrality_ext, extend):
 
         cell_size = _widthRaster.meanCellWidth
         lowerLeft = arcpy.Point(_widthRaster.extent.XMin, _widthRaster.extent.YMin)
@@ -934,18 +949,6 @@ class SupplementaryContours(object):
 
         npwidth = arcpy.RasterToNumPyArray(_widthRaster)
         npcentr = arcpy.RasterToNumPyArray(_centrRaster)
-
-        maxwidth = numpy.amax(npwidth)
-
-        width = rwidth * maxwidth
-        width_min = rwidth_min * maxwidth
-        width_max = rwidth_max * maxwidth
-
-        closed_width_avg = rclosed_width_avg * (width ** 2)
-
-        min_gap = rmin_gap * width
-        min_len = rmin_len * width
-        ext_len = rext_len * width
 
         k1 = (centrality - centrality_min) / (width - width_min)
         b1 = centrality_min - width_min * k1
@@ -1075,8 +1078,9 @@ class SupplementaryContours(object):
 
     def process_contours(self, main_contours, addcontours, _width_raster, _centrality_raster, out_features,
                          contour_interval, base_contour, index_contour,
-                         rclosed_width_avg, rwidth_min, rwidth, rwidth_max,
-                         centrality_min, centrality, centrality_ext, rmin_gap, rmin_len, rext_len, extend, absolute, mode):
+                         closed_width_avg, width_min, width, width_max,
+                         centrality_min, centrality, centrality_ext,
+                         min_gap, min_len, ext_len, extend, absolute, mode):
 
         # Add fields
         arcpy.AddField_management(main_contours, "Type", "TEXT", field_length=13)
@@ -1155,11 +1159,8 @@ class SupplementaryContours(object):
                 arcpy.MakeFeatureLayer_management(seladdclosed, seladdclosed_layer)
 
                 # SMALL
-                maxwidth = float(arcpy.GetRasterProperties_management(_width_raster, "MAXIMUM").getOutput(0))
-                width_min = rwidth_min * maxwidth
                 arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
-                                                        ' "PERIMETER" <= ' + str(
-                                                            rmin_len * rwidth * width_min / rwidth_min))
+                                                        ' "PERIMETER" <= ' + str(min_len))
 
                 seladdclosed_small = "in_memory/seladdclosed_small"
                 arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_small)
@@ -1173,7 +1174,7 @@ class SupplementaryContours(object):
 
                 # NARROW
                 arcpy.SelectLayerByAttribute_management(seladdclosed_layer, "NEW_SELECTION",
-                                                        ' "MEAN" < ' + str(rclosed_width_avg * width_min / rwidth_min))
+                                                        ' "MEAN" < ' + str(closed_width_avg))
 
                 seladdclosed_narrow = "in_memory/seladdclosed_narrow"
                 arcpy.CopyFeatures_management(seladdclosed_layer, seladdclosed_narrow)
@@ -1198,8 +1199,8 @@ class SupplementaryContours(object):
 
         # TODO: more elegant return with single value
         feature_info, feature_Show, feature_id, feature_height, min_area, width_min = \
-            self.filter_vertices(addlayer, _width_raster, _centrality_raster, rwidth,
-                                 rwidth_min, rwidth_max, rclosed_width_avg, rmin_gap, rmin_len, rext_len,
+            self.filter_vertices(addlayer, _width_raster, _centrality_raster, width,
+                                 width_min, width_max, closed_width_avg, min_gap, min_len, ext_len,
                                  centrality, centrality_min, centrality_ext, extend)
 
         arcpy.AddMessage('-- Reconstructing lines...')
@@ -1251,7 +1252,7 @@ class SupplementaryContours(object):
         base_contour = float(parameters[5].valueAsText.replace(",","."))
         index_contour = int(parameters[6].valueAsText)
 
-        rmin_area = float(parameters[7].valueAsText.replace(",", "."))
+        rclosed_width_avg = float(parameters[7].valueAsText.replace(",", "."))
 
         rwidth_min = float(parameters[8].valueAsText.replace(",", "."))
         rwidth = float(parameters[9].valueAsText.replace(",","."))
@@ -1266,6 +1267,7 @@ class SupplementaryContours(object):
         rext_len = float(parameters[16].valueAsText.replace(",","."))
         extend = parameters[17].valueAsText
         absolute = parameters[18].valueAsText
+        mode = parameters[19].valueAsText
 
         arcpy.AddMessage('PREPARING CONTOURS...')
 
@@ -1276,13 +1278,32 @@ class SupplementaryContours(object):
         addcontours = "in_memory/additional_contours"
         Contour(in_raster, addcontours, contour_interval, addbaselevel, 1)
 
+        # NORMALIZE THRESHOLD VALUES
+        wmax = 1
+        if absolute == 'false':
+            wmax = float(arcpy.GetRasterProperties_management(width_raster, "MAXIMUM").getOutput(0))
+
+        width = rwidth * wmax
+        width_min = rwidth_min * wmax
+        width_max = rwidth_max * wmax
+        closed_width_avg = rclosed_width_avg * wmax
+
+        w = 1
+        if absolute == 'false':
+            w = width
+            arcpy.AddMessage('NORMALIZING THREHOLDS ON\nmax(W) = ' + str(wmax) + ',\nWopt = ' + str(w))
+
+        min_gap = rmin_gap * w
+        min_len = rmin_len * w
+        ext_len = rext_len * w
+
         self.process_contours(main_contours, addcontours,
                               arcpy.Raster(width_raster), arcpy.Raster(centrality_raster),
                               out_features,
                               contour_interval, base_contour, index_contour,
-                              rmin_area, rwidth_min, rwidth, rwidth_max,
+                              closed_width_avg, width_min, width, width_max,
                               centrality_min, centrality, centrality_ext,
-                              rmin_gap, rmin_len, rext_len,
+                              min_gap, min_len, ext_len,
                               extend, absolute, mode)
 
         return
@@ -1334,7 +1355,7 @@ class SupplementaryContoursFull(object):
             direction="Input")
         index_contour.value = 5
         index_contour.filter.type = "Range"
-        index_contour.filter.list = [2, 100]
+        index_contour.filter.list = [2, 10]
 
         closed_width_avg = arcpy.Parameter(
             displayName="Closed contour width (average)",
@@ -1427,7 +1448,7 @@ class SupplementaryContoursFull(object):
             displayName="Extend to defined centrality",
             name="extend",
             datatype="GPBoolean",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         extend.value = 'true'
 
@@ -1435,7 +1456,7 @@ class SupplementaryContoursFull(object):
             displayName="Set parameter values in projection units (absolute values)",
             name="absolute",
             datatype="GPBoolean",
-            parameterType="Optional",
+            parameterType="Required",
             direction="Input")
         absolute.value = 'false'
 
@@ -1445,8 +1466,12 @@ class SupplementaryContoursFull(object):
             datatype="GPString",
             parameterType="Required",
             direction="Input")
-        mode.value = 'CPP'
         mode.filter.list = ['CPP', 'PYTHON']
+        if (can_use_cpp):
+            mode.value = 'CPP'
+        else:
+            mode.value = 'PYTHON'
+            mode.enabled = False
 
         parameters = [in_raster, out_features, cell_size, contour_interval, base_contour, index_contour, closed_width_avg, width_min, width, width_max,
                       centrality_min, centrality, centrality_ext, min_gap, min_len, ext_len, extend, absolute, mode]
@@ -1454,11 +1479,11 @@ class SupplementaryContoursFull(object):
         return parameters
 
     def isLicensed(self):
-        try:
-            if arcpy.CheckExtension("Spatial") != "Available":
-                raise Exception
-        except Exception:
-            return False  # tool cannot be executed
+        # try:
+        #     if arcpy.CheckExtension("Spatial") != "Available":
+        #         raise Exception
+        # except Exception:
+        #     return False  # tool cannot be executed
         return True
 
     def updateParameters(self, parameters):
@@ -1541,15 +1566,34 @@ class SupplementaryContoursFull(object):
 
         centralityCalculator.calculate_centrality(main_contours, centrality_raster, cell_size, _width_raster)
 
+        # NORMALIZE THRESHOLD VALUES
+        wmax = 1
+        if absolute == 'false':
+            wmax = float(arcpy.GetRasterProperties_management(_width_raster, "MAXIMUM").getOutput(0))
+
+        width = rwidth * wmax
+        width_min = rwidth_min * wmax
+        width_max = rwidth_max * wmax
+        closed_width_avg = rclosed_width_avg * wmax
+
+        w = 1
+        if absolute == 'false':
+            w = width
+            arcpy.AddMessage('NORMALIZING THREHOLDS ON\n-- max(W) = ' + str(wmax) + ',\n-- Wopt = ' + str(w))
+
+        min_gap = rmin_gap * w
+        min_len = rmin_len * w
+        ext_len = rext_len * w
+
         mainProcessor = SupplementaryContours()
 
         mainProcessor.process_contours(main_contours, addcontours,
                                        _width_raster, arcpy.Raster(centrality_raster),
                                        out_features,
                                        contour_interval, base_contour, index_contour,
-                                       rclosed_width_avg, rwidth_min, rwidth, rwidth_max,
+                                       closed_width_avg, width_min, width, width_max,
                                        centrality_min, centrality, centrality_ext,
-                                       rmin_gap, rmin_len, rext_len,
+                                       min_gap, min_len, ext_len,
                                        extend, absolute, mode)
 
         return
