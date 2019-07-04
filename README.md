@@ -4,9 +4,9 @@
 
 **Supplementary contour lines** are placed between regular contour lines to visualize small but important terrain forms that regular contour lines are unable to show. On topographic maps, typical forms are hillcrests, depressions, saddles, terraces, banks, and levees.
 
-*Contour types drawn by Eduard Imhof (Cartographic Relief Representation, 1982):*
+*Contour types drawn by Eduard Imhof (Cartographic Relief Presentation, 1982):*
 
-![Contour types drawn by Eduard Imhof(Cartographic Relief Representation, 1982)](img/contour_types.png)
+![Contour types drawn by Eduard Imhof(Cartographic Relief Presentation, 1982)](img/contour_types.png)
 
 **supplementary-contours** ArcGIS Python toolbox provides the complete set of tools for generation of supplementary, regular and index contours.
 
