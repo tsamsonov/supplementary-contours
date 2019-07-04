@@ -546,8 +546,16 @@ class WidthCentralityMask(object):
             direction="Input")
         centrality.value = 0.8
 
+        absolute = arcpy.Parameter(
+            displayName="Set width parameters in projection units (absolute values)",
+            name="absolute",
+            datatype="GPBoolean",
+            parameterType="Required",
+            direction="Input")
+        absolute.value = 'false'
+
         parameters = [in_width_raster, in_centrality_raster, out_raster,
-                      width_min, width, width_max, centrality_min, centrality]
+                      width_min, width, width_max, centrality_min, centrality, absolute]
 
         return parameters
 
@@ -583,16 +591,16 @@ class WidthCentralityMask(object):
                 w = npwidth[i, j]
                 c = npcentr[i, j]
 
-                flag = 0
+                flag = 1
 
                 if w < wmin:
-                    flag = 0
+                    flag = 1
                 elif w < wopt:
-                    flag = 1 if c <= w * k1 + b1 else 0
+                    flag = 2 if c <= w * k1 + b1 else 1
                 elif w < wmax:
-                    flag = 2 if c <= w * k2 + b2 else 0
+                    flag = 3 if c <= w * k2 + b2 else 1
                 else:
-                    flag = 3
+                    flag = 4
 
                 output[i, j] = flag
 
@@ -611,6 +619,7 @@ class WidthCentralityMask(object):
 
         cmin = float(parameters[6].valueAsText.replace(",","."))
         copt = float(parameters[7].valueAsText.replace(",","."))
+        absolute = parameters[8].valueAsText
 
         width = arcpy.Raster(in_width_raster)
         centr = arcpy.Raster(in_centrality_raster)
@@ -618,11 +627,14 @@ class WidthCentralityMask(object):
         npwidth = arcpy.RasterToNumPyArray(width)
         npcentr = arcpy.RasterToNumPyArray(centr)
 
-        maxwidth = numpy.amax(npwidth)
+        wmax = 1
+        if absolute == 'false':
+            wmax = numpy.amax(npwidth)
+            arcpy.AddMessage('NORMALIZING THREHOLDS ON\n-- max(W) = ' + str(wmax))
 
-        wopt = rwopt * maxwidth
-        wmin = rwmin * maxwidth
-        wmax = rwmax * maxwidth
+        wopt = rwopt * wmax
+        wmin = rwmin * wmax
+        wmax = rwmax * wmax
 
         npmask = self.calculate_mask(npwidth, npcentr, wmin, wopt, wmax, cmin, copt)
 
@@ -788,7 +800,7 @@ class SupplementaryContours(object):
         extend.value = 'true'
 
         absolute = arcpy.Parameter(
-            displayName="Set parameter values in projection units (absolute values)",
+            displayName="Set width and length parameters in projection units (absolute values)",
             name="absolute",
             datatype="GPBoolean",
             parameterType="Required",
@@ -1453,7 +1465,7 @@ class SupplementaryContoursFull(object):
         extend.value = 'true'
 
         absolute = arcpy.Parameter(
-            displayName="Set parameter values in projection units (absolute values)",
+            displayName="Set width and length parameters in projection units (absolute values)",
             name="absolute",
             datatype="GPBoolean",
             parameterType="Required",

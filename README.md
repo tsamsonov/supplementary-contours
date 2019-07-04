@@ -12,7 +12,7 @@
 
 ## Requirements
 
-You need **ArcGIS Pro** (Python 3.6) or **ArcGIS for Desktop 10.3+** (Python 2.7) to use the toolbox.
+You need **ArcGIS Pro** (Python 3.6) or **ArcGIS for Desktop 10.3+** (Python 2.7) with *Spatial Analyst* extension module to use the toolbox.
 
 ## Installation
 
