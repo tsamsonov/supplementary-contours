@@ -22,7 +22,7 @@ Download the latest [release](https://github.com/tsamsonov/supplementary-contour
 
 ## Usage
 
-Six tools are contained in the toolbox:
+You can use this software for free. Six tools are contained in the toolbox:
 
 1. **Centrality** tool calculates the centrality raster field. The value of each pixel of this raster provides estimation of how close it is located to the central line of the region between contours. Central pixels have *C = 1*,
 pixels under the regular contours have *C = 0*.
@@ -63,6 +63,13 @@ The authors thank [Bernhard Jenny](http://berniejenny.info/) and [Sergey Koshel]
 
 A detailed description of the method can be found in this paper:
 
-*Samsonov T., Koshel S, Walther D., Jenny B.* [Automated placement of supplementary contour lines](https://www.researchgate.net/publication/332963490_Automated_placement_of_supplementary_contour_lines) // **International Journal of Geographical Information Science**. — 2019. — Vol. 33. — DOI: 10.1080/13658816.2019.1610965
+*Samsonov T., Koshel S, Walther D., Jenny B.* [Automated placement of supplementary contour lines](https://www.researchgate.net/publication/332963490_Automated_placement_of_supplementary_contour_lines) // **International Journal of Geographical Information Science**. — 2019. — Vol. 33. — DOI: 10.1080/13658816.2019.1610965.
+
+## Citation & Copyright
+
+To cite the software use the following reference:
+
+*Samsonov, T. and Walther, D.*, 2019. Supplementary contours: ArcGIS Python toolbox for automated
+placement of supplementary contour lines. **Zenodo**. DOI:[10.5281/zenodo.1346066](https://doi.org/10.5281/zenodo.1346066)
 
 © 2017-2019, Timofey Samsonov & Dmitry Walther, Lomonosov MSU Faculty of Geography.
