@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="fca0d6ad-ea67-4dd8-813c-c7d5a642a51f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/supplementary-contours.WidthCentralityMask.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.WidthCentralityMask.pyt.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supplementary-contours.SupplementaryContours.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.SupplementaryContours.pyt.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/supplementary-contours.SupplementaryContoursFull.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.SupplementaryContoursFull.pyt.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/supplementary-contours.pyt" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.pyt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/supplementary-contours.pyt.xml" beforeDir="false" afterPath="$PROJECT_DIR$/supplementary-contours.pyt.xml" afterDir="false" />
     </list>
@@ -25,8 +25,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/supplementary-contours.pyt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
-              <caret line="569" column="28" selection-start-line="569" selection-start-column="28" selection-end-line="569" selection-end-column="28" />
+            <state relative-caret-position="413">
+              <caret line="1377" column="38" selection-start-line="1377" selection-start-column="38" selection-end-line="1377" selection-end-column="38" />
               <folding>
                 <element signature="e#476#504#0" expanded="true" />
               </folding>
@@ -38,7 +38,7 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="680">
+              <first_editor relative-caret-position="1258">
                 <caret line="74" column="1" selection-start-line="74" selection-start-column="1" selection-end-line="74" selection-end-column="1" />
               </first_editor>
               <second_editor />
@@ -220,6 +220,7 @@
       <workItem from="1562103632095" duration="215000" />
       <workItem from="1562177038050" duration="927000" />
       <workItem from="1562243152641" duration="1547000" />
+      <workItem from="1562249880554" duration="216000" />
     </task>
     <task id="LOCAL-00001" summary="repair incorrect contour extension">
       <created>1534085675751</created>
@@ -281,7 +282,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="48290000" />
+    <option name="totallyTimeSpent" value="48506000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -293,14 +294,12 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1680" height="965" extended-state="6" />
+    <frame x="0" y="23" width="1680" height="967" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.25" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Database Changes" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
@@ -312,11 +311,13 @@
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="SciView" />
+      <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Database Changes" order="12" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Database" order="3" />
+      <window_info anchor="right" id="SciView" order="4" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -403,8 +404,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/supplementary-contours.pyt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
-          <caret line="569" column="28" selection-start-line="569" selection-start-column="28" selection-end-line="569" selection-end-column="28" />
+        <state relative-caret-position="413">
+          <caret line="1377" column="38" selection-start-line="1377" selection-start-column="38" selection-end-line="1377" selection-end-column="38" />
           <folding>
             <element signature="e#476#504#0" expanded="true" />
           </folding>
@@ -412,15 +413,15 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
-      <provider editor-type-id="text-editor" />
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="680">
+          <first_editor relative-caret-position="1258">
             <caret line="74" column="1" selection-start-line="74" selection-start-column="1" selection-end-line="74" selection-end-column="1" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
+      <provider editor-type-id="text-editor" />
     </entry>
   </component>
 </project>

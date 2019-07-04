@@ -773,7 +773,7 @@ class SupplementaryContours(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_gap.value = 0.5
+        min_gap.value = 1.0
 
         min_len=arcpy.Parameter(
             displayName="Segment length (minimal)",
@@ -789,7 +789,7 @@ class SupplementaryContours(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        ext_len.value = 0.5
+        ext_len.value = 1.0
 
         extend = arcpy.Parameter(
             displayName="Extend to defined centrality",
@@ -1375,7 +1375,7 @@ class SupplementaryContoursFull(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        closed_width_avg.value = 0.1
+        closed_width_avg.value = 0.125
 
         width_min = arcpy.Parameter(
             displayName="Region width (minimal)",
@@ -1431,7 +1431,7 @@ class SupplementaryContoursFull(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        min_gap.value = 0.5
+        min_gap.value = 1.0
 
         min_len=arcpy.Parameter(
             displayName="Segment length (minimal)",
@@ -1447,7 +1447,7 @@ class SupplementaryContoursFull(object):
             datatype="GPDouble",
             parameterType="Required",
             direction="Input")
-        ext_len.value = 0.5
+        ext_len.value = 1.0
 
         out_features = arcpy.Parameter(
             displayName="Output contours feature class",
