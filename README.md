@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1346066.svg)](https://doi.org/10.5281/zenodo.1346066) [![Python 3.6](https://img.shields.io/badge/python-3.6-red.svg)](https://www.python.org/downloads/release/python-360/) [![Python 2.7](https://img.shields.io/badge/python-2.7-orange.svg)](https://www.python.org/downloads/release/python-270/)
+
 # Supplementary contours
 
 **Supplementary contour lines** are placed between regular contour lines to visualize small but important terrain forms that regular contour lines are unable to show. On topographic maps, typical forms are hillcrests, depressions, saddles, terraces, banks, and levees.
@@ -10,7 +12,7 @@
 
 ## Requirements
 
-You need **ArcGIS Pro** or **ArcGIS for Desktop 10.3+** to use the toolbox.
+You need **ArcGIS Pro** (Python 3.6) or **ArcGIS for Desktop 10.3+** (Python 2.7) to use the toolbox.
 
 ## Installation
 
@@ -50,6 +52,12 @@ Each tool's parameter has the description of its meaning:
 ## Example data
 
 Eight example digital elevation models in GeoTIFF format are available from the `data` folder. You can use these models to get familiar with functionality of the toolbox. These models were used during development of the method, and also in the paper cited below.
+
+## Acknowledgements
+
+[pybind11](https://github.com/pybind/pybind11/) library is used to compile region width estimation module. Writing C++ extensions for Python was never so easy and enjoyable.
+
+The authors thank [Bernhard Jenny](http://berniejenny.info/) and [Sergey Koshel](https://istina.msu.ru/profile/skoshel/) for their invaluable comments that helped to improve the methodology and software.
 
 ## Further reading
 
