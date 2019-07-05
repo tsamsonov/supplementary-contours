@@ -1303,7 +1303,7 @@ class SupplementaryContours(object):
         w = 1
         if absolute == 'false':
             w = width
-            arcpy.AddMessage('NORMALIZING THREHOLDS ON\nmax(W) = ' + str(wmax) + ',\nWopt = ' + str(w))
+            arcpy.AddMessage('NORMALIZING PARAMETERS ON\nmax(W) = ' + str(wmax) + ',\nWopt = ' + str(w))
 
         min_gap = rmin_gap * w
         min_len = rmin_len * w
@@ -1591,7 +1591,7 @@ class SupplementaryContoursFull(object):
         w = 1
         if absolute == 'false':
             w = width
-            arcpy.AddMessage('NORMALIZING THREHOLDS ON\n-- max(W) = ' + str(wmax) + ',\n-- Wopt = ' + str(w))
+            arcpy.AddMessage('NORMALIZING PARAMETERS ON\n-- max(W) = ' + str(wmax) + ',\n-- Wopt = ' + str(w))
 
         min_gap = rmin_gap * w
         min_len = rmin_len * w
