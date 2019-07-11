@@ -39,15 +39,29 @@ pixels under the regular contours have *C = 0*.
 
 > A good starting point is **Supplementary contours (full)** tool, which combines all stages of processing. Just read its help, fill the empty parameters, leave others by default and launch the processing. All other tools are supplementary ;) and can be used to get intermediate features and surfaces used in processing, if needed.
 
+## Visualization
+
+To visualize the resulting contours you need to do two things:
+
+1. Set the appropriate symbology based on the *Type* field:
+
+  ![toolbox](img/symbology.png)
+
+1. Set definition query to `Show = 1`. This query hides the segments of supplementary contours which were filtered out during processing:
+
+  ![toolbox](img/query.png)
+
 ## Help
 
-Each tool contains the detailed description of how it works:
+A brief description of each tool can be found in the Tool Help panel:
 
 ![toolbox](img/tool_help.png)
 
-Each tool's parameter has the description of its meaning:
+To get help about a parameter of the tool, place the cursor inside that parameter (highlighted in blue):
 
 ![toolbox](img/parameter_help.png)
+
+To switch from the help of the specific parameter to the general tool help, just click somewhere outside the parameter.
 
 ## Example data
 

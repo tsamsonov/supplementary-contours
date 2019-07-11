@@ -106,8 +106,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="192">
-              <caret line="12" column="53" selection-start-line="12" selection-start-column="53" selection-end-line="12" selection-end-column="53" />
+            <state relative-caret-position="144">
+              <caret line="9" column="32" lean-forward="true" selection-start-line="9" selection-end-line="12" selection-end-column="54" />
             </state>
           </provider>
         </entry>
@@ -162,23 +162,13 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="WidthEstimator" type="b2602c69:ProjectViewProjectNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../generalize-dem/src" />
     <property name="settings.editor.selected.configurable" value="CPPToolchains" />
   </component>
   <component name="RecentsManager">
@@ -270,11 +260,12 @@
       <workItem from="1561303164925" duration="130000" />
       <workItem from="1561908913774" duration="8103000" />
       <workItem from="1562096897208" duration="1770000" />
+      <workItem from="1562320408211" duration="32000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="37092000" />
+    <option name="totallyTimeSpent" value="37124000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -287,9 +278,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-6" y="-6" width="1693" height="1023" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.30128598" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.3049602" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -379,20 +369,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pybind.cpp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="112">
-          <caret line="7" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="e#46#75#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/pybind.cpp" />
     <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="192">
-          <caret line="12" column="53" selection-start-line="12" selection-start-column="53" selection-end-line="12" selection-end-column="53" />
+        <state relative-caret-position="144">
+          <caret line="9" column="32" lean-forward="true" selection-start-line="9" selection-end-line="12" selection-end-column="54" />
         </state>
       </provider>
     </entry>
