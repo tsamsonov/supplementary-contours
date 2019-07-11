@@ -45,11 +45,15 @@ To visualize the resulting contours you need to do two things:
 
 1. Set the appropriate symbology based on the *Type* field:
 
-  ![toolbox](img/symbology.png)
+    ![toolbox](img/symbology.png)
 
-1. Set definition query to `Show = 1`. This query hides the segments of supplementary contours which were filtered out during processing:
+2. Set definition query to `Show = 1`. This query hides the segments of supplementary contours which were filtered out during processing:
 
-  ![toolbox](img/query.png)
+    ![toolbox](img/query.png)
+
+This is how it looks for the fragment of `DEM1`:
+
+![toolbox](img/dem1ex.png)
 
 ## Help
 
