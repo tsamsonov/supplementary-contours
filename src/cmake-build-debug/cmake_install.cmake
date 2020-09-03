@@ -1,8 +1,8 @@
-# Install script for directory: Y:/GitHub/supplementary-contours/src
+# Install script for directory: /Users/tsamsonov/GitHub/supplementary-contours/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/WidthEstimator")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("Y:/GitHub/supplementary-contours/src/cmake-build-debug/pybind11/cmake_install.cmake")
+  include("/Users/tsamsonov/GitHub/supplementary-contours/src/cmake-build-debug/pybind11/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "Y:/GitHub/supplementary-contours/src/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/tsamsonov/GitHub/supplementary-contours/src/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

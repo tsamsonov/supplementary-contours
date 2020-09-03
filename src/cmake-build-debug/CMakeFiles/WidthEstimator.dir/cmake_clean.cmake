@@ -1,9 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/WidthEstimator.dir/WidthEstimator.cpp.obj"
+  "CMakeFiles/WidthEstimator.dir/WidthEstimator.cpp.o"
+  "WidthEstimator.cpython-37m-darwin.so"
   "WidthEstimator.pdb"
-  "WidthEstimator.pyd"
-  "WidthEstimator.lib"
-  "WidthEstimator.pyd.manifest"
 )
 
 # Per-language clean rules from dependency scanning.

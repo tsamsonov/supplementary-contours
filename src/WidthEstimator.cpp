@@ -57,12 +57,12 @@ py::array_t<double> estimate_width(py::array_t<double> ceuc, py::array_t<double>
     return cwidth;
 }
 
-PYBIND11_MODULE(WidthEstimator, m) {
+PYBIND11_MODULE(WidthEstimator3, m) {
     m.doc() = R"pbdoc(
         C++ plugin for region width estimation
         -----------------------
 
-        .. currentmodule:: WidthEstimator
+        .. currentmodule:: WidthEstimator3
 
         .. autosummary::
            :toctree: _generate

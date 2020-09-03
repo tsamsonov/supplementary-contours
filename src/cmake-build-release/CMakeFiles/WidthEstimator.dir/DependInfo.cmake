@@ -4,14 +4,19 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "Y:/GitHub/supplementary-contours/src/WidthEstimator.cpp" "Y:/GitHub/supplementary-contours/src/cmake-build-release/CMakeFiles/WidthEstimator.dir/WidthEstimator.cpp.obj"
+  "/Users/tsamsonov/GitHub/supplementary-contours/src/WidthEstimator.cpp" "/Users/tsamsonov/GitHub/supplementary-contours/src/cmake-build-release/CMakeFiles/WidthEstimator.dir/WidthEstimator.cpp.o"
   )
-set(CMAKE_CXX_COMPILER_ID "MSVC")
+set(CMAKE_CXX_COMPILER_ID "AppleClang")
+
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "WidthEstimator_EXPORTS"
+  )
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../pybind11/include"
-  "C:/Python27/ArcGIS10.6/include"
+  "/Applications/QGIS3.14.app/Contents/Frameworks/Python.framework/Versions/3.7/include/python3.7m"
   )
 
 # Targets to which this target links.
