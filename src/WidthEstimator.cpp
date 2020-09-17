@@ -66,15 +66,21 @@ Shifts get_shifts_byY(int x0, int y0, int x1, int y1) {
 // Bresenham's algorithm in any direction
 Shifts get_shifts(int x0, int y0, int x1, int y1) {
     if (abs(y1 - y0) < abs(x1 - x0)) {
-        if (x0 > x1)
-            return get_shifts_byX(x1, y1, x0, y0);
-        else
+        if (x0 > x1) {
+            auto s = get_shifts_byX(x1, y1, x0, y0);
+            std::reverse(std::begin(s), std::end(s));
+            return s;
+        } else {
             return get_shifts_byX(x0, y0, x1, y1);
+        }
     } else {
-        if (y0 > y1)
-            return get_shifts_byY(x1, y1, x0, y0);
-        else
+        if (y0 > y1) {
+            auto s = get_shifts_byY(x1, y1, x0, y0);
+            std::reverse(std::begin(s), std::end(s));
+            return s;
+        } else {
             return get_shifts_byY(x0, y0, x1, y1);
+        }
     }
 }
 
@@ -102,7 +108,7 @@ py::array_t<double> estimate_length(py::array_t<double> cobst, py::array_t<doubl
 
     for (auto k = 0; k < ndirs; k++) {
         i = -r * cos(a);
-        j =  r * sin(a);
+        j = r * sin(a);
         shifts.push_back(std::move(get_shifts(0, 0, j, i)));
         a += angle;
     }
@@ -120,16 +126,19 @@ py::array_t<double> estimate_length(py::array_t<double> cobst, py::array_t<doubl
 
     int ndirs2 = ndirs / 2;
 
-    std::vector<double> d1(ndirs2); // reusable vector;
-    std::vector<double> d2(ndirs2); // reusable vector;
-    std::vector<double> d12(ndirs2); // reusable vector;
+
 
     std::pair<int, int> ij;
     double d;
     int ik, jk;
 
+    std::vector<double> d1(ndirs2); // reusable vector;
+    std::vector<double> d2(ndirs2); // reusable vector;
+    std::vector<double> d12(ndirs2); // reusable vector;
+
     for (int i = 0; i < nrow; i++) {
         for (int j = 0; j < ncol; j++) {
+
             for (auto k = 0; k < ndirs2; k++) {
                 d1[k] = r;
                 for (auto s: shifts[k]) {
@@ -140,6 +149,9 @@ py::array_t<double> estimate_length(py::array_t<double> cobst, py::array_t<doubl
                             d1[k] = dist(s.first, s.second);
                             break;
                         }
+                    } else {
+                        d1[k] = dist(s.first, s.second);
+                        break;
                     }
                 }
 
@@ -152,13 +164,17 @@ py::array_t<double> estimate_length(py::array_t<double> cobst, py::array_t<doubl
                             d2[k] = dist(s.first, s.second);
                             break;
                         }
+                    } else {
+                        d2[k] = dist(s.first, s.second);
+                        break;
                     }
                 }
 
                 d12[k] = d1[k] + d2[k];
             }
 
-            length[i * ncol + j] = *std::max_element(d12.begin(), d12.end());
+//            length[i * ncol + j] = *std::max_element(d12.begin(), d12.end());
+            length[i * ncol + j] = std::distance(d12.begin(), std::max_element(d12.begin(), d12.end()));
 
         }
     }

@@ -30,7 +30,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c1c740c7-9d39-4526-9ec0-a2edb9923667" name="Default Changelist" comment="many changes">
+    <list default="true" id="c1c740c7-9d39-4526-9ec0-a2edb9923667" name="Default Changelist" comment="add length calculation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/WidthEstimator.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/WidthEstimator.cpp" afterDir="false" />
     </list>
@@ -75,12 +75,12 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.WidthEstimator3">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="WidthEstimator3" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="WidthEstimator3" TARGET_NAME="WidthEstimator3" CONFIG_NAME="Debug">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="WidthEstimator3" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="WidthEstimator3" TARGET_NAME="WidthEstimator3" CONFIG_NAME="Debug">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -189,17 +189,19 @@
     <MESSAGE value="write workable width calculator" />
     <MESSAGE value="rewrite on stl" />
     <MESSAGE value="many changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="many changes" />
+    <MESSAGE value="add length calculation" />
+    <option name="LAST_COMMIT_MESSAGE" value="add length calculation" />
   </component>
   <component name="WindowStateProjectService">
     <state x="780" y="336" key="SettingsEditor" timestamp="1598801704352">
       <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="780" y="336" key="SettingsEditor/0.23.2560.1349@0.23.2560.1349" timestamp="1598801704352" />
-    <state x="439" y="253" key="Vcs.Push.Dialog.v2" timestamp="1599154171712">
-      <screen x="0" y="23" width="1680" height="982" />
+    <state x="669" y="339" key="Vcs.Push.Dialog.v2" timestamp="1600288258374">
+      <screen x="0" y="23" width="2560" height="1349" />
     </state>
     <state x="439" y="253" key="Vcs.Push.Dialog.v2/0.23.1680.982@0.23.1680.982" timestamp="1599154171712" />
+    <state x="669" y="339" key="Vcs.Push.Dialog.v2/0.23.2560.1349@0.23.2560.1349" timestamp="1600288258374" />
   </component>
   <component name="masterDetails">
     <states>
